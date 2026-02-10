@@ -1,16 +1,24 @@
 "use client";
 
 import { addToCart } from "@/lib/features/carts/cartsSlice";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux";
-import { RootState } from "@/lib/store";
-import { LegacyProduct } from "@/types/product.types";
+import { useAppDispatch } from "@/lib/hooks/redux";
+import { Product } from "@/types/product.types";
+import { PLACEHOLDER_IMAGE } from "@/lib/utils";
 import React from "react";
 
-const AddToCartBtn = ({ data }: { data: LegacyProduct & { quantity: number } }) => {
+const AddToCartBtn = ({
+  data,
+}: {
+  data: Product & { quantity: number };
+}) => {
   const dispatch = useAppDispatch();
-  const { sizeSelection, colorSelection } = useAppSelector(
-    (state: RootState) => state.products
-  );
+
+  // Build specs summary for cart display
+  const specsSummary = [
+    data.specs.processor.split(" ").slice(0, 3).join(" "),
+    data.specs.ram,
+    data.specs.storage,
+  ];
 
   return (
     <button
@@ -20,10 +28,10 @@ const AddToCartBtn = ({ data }: { data: LegacyProduct & { quantity: number } }) 
         dispatch(
           addToCart({
             id: data.id,
-            name: data.title,
-            srcUrl: data.srcUrl,
+            name: data.name,
+            srcUrl: data.images?.[0] || PLACEHOLDER_IMAGE,
             price: data.price,
-            attributes: [sizeSelection, colorSelection.name],
+            attributes: specsSummary,
             discount: data.discount,
             quantity: data.quantity,
           })

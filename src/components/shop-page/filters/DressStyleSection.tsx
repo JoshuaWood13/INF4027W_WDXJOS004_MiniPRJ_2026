@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   Accordion,
@@ -5,50 +7,47 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import Link from "next/link";
-import { MdKeyboardArrowRight } from "react-icons/md";
+import { cn } from "@/lib/utils";
+import { useRouter, useSearchParams } from "next/navigation";
 
-type DressStyle = {
-  title: string;
-  slug: string;
-};
+const screenSizes = ['13"', '14"', '15.6"', '16"', '17"'];
 
-const dressStylesData: DressStyle[] = [
-  {
-    title: "Casual",
-    slug: "/shop?style=casual",
-  },
-  {
-    title: "Formal",
-    slug: "/shop?style=formal",
-  },
-  {
-    title: "Party",
-    slug: "/shop?style=party",
-  },
-  {
-    title: "Gym",
-    slug: "/shop?style=gym",
-  },
-];
+/** Screen Size filter — replaces the old Dress Style filter */
+const ScreenSizeSection = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeScreen = searchParams.get("screen") || "";
 
-const DressStyleSection = () => {
+  const handleScreenClick = (screen: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (activeScreen === screen) {
+      params.delete("screen");
+    } else {
+      params.set("screen", screen);
+    }
+    router.push(`/shop?${params.toString()}`);
+  };
+
   return (
-    <Accordion type="single" collapsible defaultValue="filter-style">
-      <AccordionItem value="filter-style" className="border-none">
+    <Accordion type="single" collapsible defaultValue="filter-screen">
+      <AccordionItem value="filter-screen" className="border-none">
         <AccordionTrigger className="text-black font-bold text-xl hover:no-underline p-0 py-0.5">
-          Dress Style
+          Screen Size
         </AccordionTrigger>
         <AccordionContent className="pt-4 pb-0">
-          <div className="flex flex-col text-black/60 space-y-0.5">
-            {dressStylesData.map((dStyle, idx) => (
-              <Link
-                key={idx}
-                href={dStyle.slug}
-                className="flex items-center justify-between py-2"
+          <div className="flex items-center flex-wrap gap-2">
+            {screenSizes.map((size, index) => (
+              <button
+                key={index}
+                type="button"
+                className={cn([
+                  "bg-[#F0F0F0] flex items-center justify-center px-5 py-2.5 text-sm rounded-full",
+                  activeScreen === size && "bg-black font-medium text-white",
+                ])}
+                onClick={() => handleScreenClick(size)}
               >
-                {dStyle.title} <MdKeyboardArrowRight />
-              </Link>
+                {size}
+              </button>
             ))}
           </div>
         </AccordionContent>
@@ -57,4 +56,4 @@ const DressStyleSection = () => {
   );
 };
 
-export default DressStyleSection;
+export default ScreenSizeSection;

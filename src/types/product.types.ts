@@ -1,7 +1,3 @@
-// ──────────────────────────────────────────────
-// New Firestore-backed Product type (Phase 2+)
-// ──────────────────────────────────────────────
-
 export type Discount = {
   amount: number;
   percentage: number;
@@ -18,13 +14,20 @@ export type LaptopSpecs = {
   weight: string;
 };
 
+export type ProductCategory =
+  | "gaming"
+  | "business"
+  | "ultrabook"
+  | "student"
+  | "workstation";
+
 export type Product = {
   id: string;
   name: string;
   brand: string;
   price: number;
   cost: number;
-  category: "gaming" | "business" | "ultrabook" | "student" | "workstation";
+  category: ProductCategory;
   specs: LaptopSpecs;
   images: string[];
   tags: string[];
@@ -38,19 +41,4 @@ export type Product = {
   onSale: boolean;
   createdAt: Date;
   updatedAt: Date;
-};
-
-// ──────────────────────────────────────────────
-// Legacy Product type (used by existing hardcoded pages)
-// Will be removed in Phase 2 when pages are migrated
-// ──────────────────────────────────────────────
-
-export type LegacyProduct = {
-  id: number;
-  title: string;
-  srcUrl: string;
-  gallery?: string[];
-  price: number;
-  discount: Discount;
-  rating: number;
 };

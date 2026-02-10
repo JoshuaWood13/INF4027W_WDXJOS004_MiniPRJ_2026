@@ -13,6 +13,7 @@ import {
   removeCartItem,
 } from "@/lib/features/carts/cartsSlice";
 import { useAppDispatch } from "@/lib/hooks/redux";
+import { formatPrice, calcDiscountedPrice, calcDiscountPercentage } from "@/lib/utils";
 
 type ProductCardProps = {
   data: CartItem;
@@ -20,6 +21,9 @@ type ProductCardProps = {
 
 const ProductCard = ({ data }: ProductCardProps) => {
   const dispatch = useAppDispatch();
+  const discountedPrice = calcDiscountedPrice(data.price, data.discount);
+  const hasDiscount = data.discount.percentage > 0 || data.discount.amount > 0;
+  const discountPct = calcDiscountPercentage(data.price, data.discount);
 
   return (
     <div className="flex items-start space-x-4">
@@ -31,7 +35,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
           src={data.srcUrl}
           width={124}
           height={124}
-          className="rounded-md w-full h-full object-cover hover:scale-110 transition-all duration-500"
+          className="rounded-md w-full h-full object-contain hover:scale-110 transition-all duration-500"
           alt={data.name}
           priority
         />
@@ -61,55 +65,26 @@ const ProductCard = ({ data }: ProductCardProps) => {
             <PiTrashFill className="text-xl md:text-2xl text-red-600" />
           </Button>
         </div>
-        <div className="-mt-1">
-          <span className="text-black text-xs md:text-sm mr-1">Size:</span>
+        {/* Show specs summary instead of size/color */}
+        <div className="-mt-1 mb-auto">
           <span className="text-black/60 text-xs md:text-sm">
-            {data.attributes[0]}
-          </span>
-        </div>
-        <div className="mb-auto -mt-1.5">
-          <span className="text-black text-xs md:text-sm mr-1">Color:</span>
-          <span className="text-black/60 text-xs md:text-sm">
-            {data.attributes[1]}
+            {data.attributes.join(" | ")}
           </span>
         </div>
         <div className="flex items-center flex-wrap justify-between">
           <div className="flex items-center space-x-[5px] xl:space-x-2.5">
-            {data.discount.percentage > 0 ? (
-              <span className="font-bold text-black text-xl xl:text-2xl">
-                {`$${Math.round(
-                  data.price - (data.price * data.discount.percentage) / 100
-                )}`}
-              </span>
-            ) : data.discount.amount > 0 ? (
-              <span className="font-bold text-black text-xl xl:text-2xl">
-                {`$${data.price - data.discount.amount}`}
-              </span>
-            ) : (
-              <span className="font-bold text-black text-xl xl:text-2xl">
-                ${data.price}
-              </span>
-            )}
-            {data.discount.percentage > 0 && (
-              <span className="font-bold text-black/40 line-through text-xl xl:text-2xl">
-                ${data.price}
-              </span>
-            )}
-            {data.discount.amount > 0 && (
-              <span className="font-bold text-black/40 line-through text-xl xl:text-2xl">
-                ${data.price}
-              </span>
-            )}
-            {data.discount.percentage > 0 ? (
-              <span className="font-medium text-[10px] xl:text-xs py-1.5 px-3.5 rounded-full bg-[#FF3333]/10 text-[#FF3333]">
-                {`-${data.discount.percentage}%`}
-              </span>
-            ) : (
-              data.discount.amount > 0 && (
-                <span className="font-medium text-[10px] xl:text-xs py-1.5 px-3.5 rounded-full bg-[#FF3333]/10 text-[#FF3333]">
-                  {`-$${data.discount.amount}`}
+            <span className="font-bold text-black text-xl xl:text-2xl">
+              {formatPrice(discountedPrice)}
+            </span>
+            {hasDiscount && (
+              <>
+                <span className="font-bold text-black/40 line-through text-xl xl:text-2xl">
+                  {formatPrice(data.price)}
                 </span>
-              )
+                <span className="font-medium text-[10px] xl:text-xs py-1.5 px-3.5 rounded-full bg-[#FF3333]/10 text-[#FF3333]">
+                  {`-${discountPct}%`}
+                </span>
+              </>
             )}
           </div>
           <CartCounter

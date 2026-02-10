@@ -8,12 +8,12 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import ProductCard from "./ProductCard";
-import { LegacyProduct } from "@/types/product.types";
+import { Product } from "@/types/product.types";
 import Link from "next/link";
 
 type ProductListSecProps = {
   title: string;
-  data: LegacyProduct[];
+  data: Product[];
   viewAllLink?: string;
 };
 

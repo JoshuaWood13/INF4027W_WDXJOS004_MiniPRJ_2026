@@ -29,12 +29,12 @@ const DressStyle = () => {
         >
           <DressStyleCard
             title="Gaming"
-            url="/shop#gaming"
+            url="/shop?category=gaming"
             className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/images/dress-style-1.png')]"
           />
           <DressStyleCard
             title="Business"
-            url="/shop#business"
+            url="/shop?category=business"
             className="md:max-w-[684px] h-[190px] bg-[url('/images/dress-style-2.png')]"
           />
         </motion.div>
@@ -47,12 +47,12 @@ const DressStyle = () => {
         >
           <DressStyleCard
             title="Student"
-            url="/shop#student"
+            url="/shop?category=student"
             className="md:max-w-[684px] h-[190px] bg-[url('/images/dress-style-3.png')]"
           />
           <DressStyleCard
             title="Ultrabook"
-            url="/shop#ultrabook"
+            url="/shop?category=ultrabook"
             className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/images/dress-style-4.png')]"
           />
         </motion.div>

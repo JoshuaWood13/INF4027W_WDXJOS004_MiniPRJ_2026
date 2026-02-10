@@ -1,12 +1,17 @@
+"use client";
+
 import React from "react";
 import CategoriesSection from "@/components/shop-page/filters/CategoriesSection";
-import ColorsSection from "@/components/shop-page/filters/ColorsSection";
-import DressStyleSection from "@/components/shop-page/filters/DressStyleSection";
+import BrandSection from "@/components/shop-page/filters/ColorsSection";
+import ScreenSizeSection from "@/components/shop-page/filters/DressStyleSection";
 import PriceSection from "@/components/shop-page/filters/PriceSection";
-import SizeSection from "@/components/shop-page/filters/SizeSection";
+import RamSection from "@/components/shop-page/filters/SizeSection";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 const Filters = () => {
+  const router = useRouter();
+
   return (
     <>
       <hr className="border-t-black/10" />
@@ -14,16 +19,17 @@ const Filters = () => {
       <hr className="border-t-black/10" />
       <PriceSection />
       <hr className="border-t-black/10" />
-      <ColorsSection />
+      <BrandSection />
       <hr className="border-t-black/10" />
-      <SizeSection />
+      <RamSection />
       <hr className="border-t-black/10" />
-      <DressStyleSection />
+      <ScreenSizeSection />
       <Button
         type="button"
         className="bg-black w-full rounded-full text-sm font-medium py-4 h-12"
+        onClick={() => router.push("/shop")}
       >
-        Apply Filter
+        Clear All Filters
       </Button>
     </>
   );

@@ -4,7 +4,7 @@ import BreadcrumbCart from "@/components/cart-page/BreadcrumbCart";
 import ProductCard from "@/components/cart-page/ProductCard";
 import { Button } from "@/components/ui/button";
 import InputGroup from "@/components/ui/input-group";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { integralCF } from "@/styles/fonts";
 import { FaArrowRight } from "react-icons/fa6";
 import { MdOutlineLocalOffer } from "react-icons/md";
@@ -51,18 +51,23 @@ export default function CartPage() {
                 <div className="flex flex-col space-y-5">
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">Subtotal</span>
-                    <span className="md:text-xl font-bold">${totalPrice}</span>
+                    <span className="md:text-xl font-bold">
+                      {formatPrice(totalPrice)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">
                       Discount (-
-                      {Math.round(
-                        ((totalPrice - adjustedTotalPrice) / totalPrice) * 100
-                      )}
+                      {totalPrice > 0
+                        ? Math.round(
+                            ((totalPrice - adjustedTotalPrice) / totalPrice) *
+                              100
+                          )
+                        : 0}
                       %)
                     </span>
                     <span className="md:text-xl font-bold text-red-600">
-                      -${Math.round(totalPrice - adjustedTotalPrice)}
+                      -{formatPrice(Math.round(totalPrice - adjustedTotalPrice))}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -75,7 +80,7 @@ export default function CartPage() {
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black">Total</span>
                     <span className="text-xl md:text-2xl font-bold">
-                      ${Math.round(adjustedTotalPrice)}
+                      {formatPrice(Math.round(adjustedTotalPrice))}
                     </span>
                   </div>
                 </div>

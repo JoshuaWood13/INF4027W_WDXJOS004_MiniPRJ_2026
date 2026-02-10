@@ -1,28 +1,70 @@
+import { Suspense } from "react";
 import BreadcrumbShop from "@/components/shop-page/BreadcrumbShop";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import MobileFilters from "@/components/shop-page/filters/MobileFilters";
 import Filters from "@/components/shop-page/filters";
 import { FiSliders } from "react-icons/fi";
-import { newArrivalsData, relatedProductData, topSellingData } from "../page";
 import ProductCard from "@/components/common/ProductCard";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { getProducts } from "@/lib/firestore/products";
+import ShopSortSelect from "@/components/shop-page/ShopSortSelect";
 
-export default function ShopPage() {
+type ShopPageProps = {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export default async function ShopPage({ searchParams }: ShopPageProps) {
+  // Extract filter values from URL search params
+  const category =
+    typeof searchParams.category === "string"
+      ? searchParams.category
+      : undefined;
+  const brand =
+    typeof searchParams.brand === "string" ? searchParams.brand : undefined;
+  const minPrice =
+    typeof searchParams.minPrice === "string"
+      ? Number(searchParams.minPrice)
+      : undefined;
+  const maxPrice =
+    typeof searchParams.maxPrice === "string"
+      ? Number(searchParams.maxPrice)
+      : undefined;
+  const ram =
+    typeof searchParams.ram === "string" ? searchParams.ram : undefined;
+  const screen =
+    typeof searchParams.screen === "string" ? searchParams.screen : undefined;
+  const sort =
+    typeof searchParams.sort === "string"
+      ? (searchParams.sort as "price-asc" | "price-desc" | "newest" | "sales")
+      : undefined;
+
+  // Fetch products from Firestore with applicable filters
+  let products = await getProducts({
+    category,
+    brand,
+    minPrice,
+    maxPrice,
+    sortBy: sort || "newest",
+  });
+
+  // Apply RAM filter in JS (specs.ram contains values like "16GB DDR5")
+  if (ram) {
+    products = products.filter((p) =>
+      p.specs.ram.toLowerCase().includes(ram.toLowerCase())
+    );
+  }
+
+  // Apply screen size filter in JS (specs.screenSize contains values like '15.6"')
+  if (screen) {
+    products = products.filter((p) =>
+      p.specs.screenSize.includes(screen.replace('"', ""))
+    );
+  }
+
+  // Build a descriptive title
+  const titleParts: string[] = [];
+  if (category) titleParts.push(category.charAt(0).toUpperCase() + category.slice(1));
+  if (brand) titleParts.push(brand);
+  const pageTitle = titleParts.length > 0 ? titleParts.join(" — ") : "All Laptops";
+
   return (
     <main className="pb-20">
       <div className="max-w-frame mx-auto px-4 xl:px-0">
@@ -34,102 +76,44 @@ export default function ShopPage() {
               <span className="font-bold text-black text-xl">Filters</span>
               <FiSliders className="text-2xl text-black/40" />
             </div>
-            <Filters />
+            <Suspense fallback={<div className="py-4 text-sm text-black/40">Loading filters...</div>}>
+              <Filters />
+            </Suspense>
           </div>
           <div className="flex flex-col w-full space-y-5">
             <div className="flex flex-col lg:flex-row lg:justify-between">
               <div className="flex items-center justify-between">
-                <h1 className="font-bold text-2xl md:text-[32px]">Casual</h1>
-                <MobileFilters />
+                <h1 className="font-bold text-2xl md:text-[32px]">
+                  {pageTitle}
+                </h1>
+                <Suspense>
+                  <MobileFilters />
+                </Suspense>
               </div>
               <div className="flex flex-col sm:items-center sm:flex-row">
                 <span className="text-sm md:text-base text-black/60 mr-3">
-                  Showing 1-10 of 100 Products
+                  Showing {products.length}{" "}
+                  {products.length === 1 ? "Product" : "Products"}
                 </span>
-                <div className="flex items-center">
-                  Sort by:{" "}
-                  <Select defaultValue="most-popular">
-                    <SelectTrigger className="font-medium text-sm px-1.5 sm:text-base w-fit text-black bg-transparent shadow-none border-none">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="most-popular">Most Popular</SelectItem>
-                      <SelectItem value="low-price">Low Price</SelectItem>
-                      <SelectItem value="high-price">High Price</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <Suspense>
+                  <ShopSortSelect currentSort={sort} />
+                </Suspense>
               </div>
             </div>
             <div className="w-full grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
-              {[
-                ...relatedProductData.slice(1, 4),
-                ...newArrivalsData.slice(1, 4),
-                ...topSellingData.slice(1, 4),
-              ].map((product) => (
+              {products.map((product) => (
                 <ProductCard key={product.id} data={product} />
               ))}
             </div>
-            <hr className="border-t-black/10" />
-            <Pagination className="justify-between">
-              <PaginationPrevious href="#" className="border border-black/10" />
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationLink
-                    href="#"
-                    className="text-black/50 font-medium text-sm"
-                    isActive
-                  >
-                    1
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink
-                    href="#"
-                    className="text-black/50 font-medium text-sm"
-                  >
-                    2
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem className="hidden lg:block">
-                  <PaginationLink
-                    href="#"
-                    className="text-black/50 font-medium text-sm"
-                  >
-                    3
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis className="text-black/50 font-medium text-sm" />
-                </PaginationItem>
-                <PaginationItem className="hidden lg:block">
-                  <PaginationLink
-                    href="#"
-                    className="text-black/50 font-medium text-sm"
-                  >
-                    8
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem className="hidden sm:block">
-                  <PaginationLink
-                    href="#"
-                    className="text-black/50 font-medium text-sm"
-                  >
-                    9
-                  </PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink
-                    href="#"
-                    className="text-black/50 font-medium text-sm"
-                  >
-                    10
-                  </PaginationLink>
-                </PaginationItem>
-              </PaginationContent>
-
-              <PaginationNext href="#" className="border border-black/10" />
-            </Pagination>
+            {products.length === 0 && (
+              <div className="text-center py-20 text-black/40">
+                <p className="text-xl mb-2">No laptops found</p>
+                <p className="text-sm">
+                  Try adjusting your filters or clearing them to see all
+                  products.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

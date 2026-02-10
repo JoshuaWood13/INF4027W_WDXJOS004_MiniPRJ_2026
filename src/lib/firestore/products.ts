@@ -7,12 +7,9 @@ import {
   updateDoc,
   deleteDoc,
   query,
-  where,
   orderBy,
-  limit,
   increment,
   Timestamp,
-  QueryConstraint,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Product } from "@/types/product.types";
@@ -34,8 +31,7 @@ function docToProduct(docSnap: any): Product {
 
 // ---------- Read ----------
 
-/** Get all products, optionally filtered */
-export async function getProducts(filters?: {
+export type ProductFilters = {
   category?: string;
   brand?: string;
   maxPrice?: number;
@@ -43,37 +39,69 @@ export async function getProducts(filters?: {
   featured?: boolean;
   onSale?: boolean;
   limitCount?: number;
-}): Promise<Product[]> {
-  const constraints: QueryConstraint[] = [];
+  sortBy?: "price-asc" | "price-desc" | "newest" | "sales";
+};
 
+/**
+ * Get all products, optionally filtered.
+ * For our 25-product catalog, we fetch all docs and apply filters in JS
+ * to avoid complex Firestore composite index requirements.
+ */
+export async function getProducts(
+  filters?: ProductFilters
+): Promise<Product[]> {
+  const q = query(
+    collection(db, COLLECTION),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
+  let products = snapshot.docs.map(docToProduct);
+
+  // Apply all filters in JS
   if (filters?.category) {
-    constraints.push(where("category", "==", filters.category));
+    products = products.filter((p) => p.category === filters.category);
   }
   if (filters?.brand) {
-    constraints.push(where("brand", "==", filters.brand));
+    products = products.filter((p) => p.brand === filters.brand);
   }
   if (filters?.featured !== undefined) {
-    constraints.push(where("featured", "==", filters.featured));
+    products = products.filter((p) => p.featured === filters.featured);
   }
   if (filters?.onSale !== undefined) {
-    constraints.push(where("onSale", "==", filters.onSale));
+    products = products.filter((p) => p.onSale === filters.onSale);
   }
   if (filters?.minPrice !== undefined) {
-    constraints.push(where("price", ">=", filters.minPrice));
+    products = products.filter((p) => p.price >= filters.minPrice!);
   }
   if (filters?.maxPrice !== undefined) {
-    constraints.push(where("price", "<=", filters.maxPrice));
+    products = products.filter((p) => p.price <= filters.maxPrice!);
   }
 
-  constraints.push(orderBy("createdAt", "desc"));
+  // Apply sorting
+  if (filters?.sortBy) {
+    switch (filters.sortBy) {
+      case "price-asc":
+        products.sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        products.sort((a, b) => b.price - a.price);
+        break;
+      case "sales":
+        products.sort((a, b) => b.salesCount - a.salesCount);
+        break;
+      case "newest":
+      default:
+        // Already sorted by createdAt desc from Firestore
+        break;
+    }
+  }
 
+  // Apply limit after all filtering/sorting
   if (filters?.limitCount) {
-    constraints.push(limit(filters.limitCount));
+    products = products.slice(0, filters.limitCount);
   }
 
-  const q = query(collection(db, COLLECTION), ...constraints);
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(docToProduct);
+  return products;
 }
 
 /** Get a single product by ID */

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <rect width="400" height="400" rx="20" fill="#F0EEED"/>
+  <!-- Laptop screen -->
+  <rect x="80" y="100" width="240" height="160" rx="8" fill="#E0DEDD" stroke="#C0BDBC" stroke-width="2"/>
+  <rect x="90" y="110" width="220" height="140" rx="4" fill="#D0CDCC"/>
+  <!-- Screen content hint -->
+  <rect x="110" y="130" width="180" height="8" rx="4" fill="#B0ADAC"/>
+  <rect x="110" y="148" width="140" height="8" rx="4" fill="#B0ADAC"/>
+  <rect x="110" y="166" width="160" height="8" rx="4" fill="#B0ADAC"/>
+  <rect x="110" y="190" width="80" height="40" rx="4" fill="#B0ADAC"/>
+  <rect x="200" y="190" width="80" height="40" rx="4" fill="#B0ADAC"/>
+  <!-- Laptop base -->
+  <path d="M60 268 L80 260 L320 260 L340 268 Z" fill="#E0DEDD" stroke="#C0BDBC" stroke-width="2"/>
+  <rect x="60" y="268" width="280" height="12" rx="4" fill="#D0CDCC" stroke="#C0BDBC" stroke-width="1"/>
+  <!-- Trackpad hint -->
+  <rect x="170" y="262" width="60" height="4" rx="2" fill="#C0BDBC"/>
+  <!-- Text -->
+  <text x="200" y="330" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#999" text-anchor="middle" font-weight="500">No Image Available</text>
+</svg>

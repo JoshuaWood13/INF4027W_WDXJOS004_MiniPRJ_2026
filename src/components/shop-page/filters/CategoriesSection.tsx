@@ -1,46 +1,47 @@
-import Link from "next/link";
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import { MdKeyboardArrowRight } from "react-icons/md";
+import { cn } from "@/lib/utils";
 
-type Category = {
-  title: string;
-  slug: string;
-};
-
-const categoriesData: Category[] = [
-  {
-    title: "T-shirts",
-    slug: "/shop?category=t-shirts",
-  },
-  {
-    title: "Shorts",
-    slug: "/shop?category=shorts",
-  },
-  {
-    title: "Shirts",
-    slug: "/shop?category=shirts",
-  },
-  {
-    title: "Hoodie",
-    slug: "/shop?category=hoodie",
-  },
-  {
-    title: "Jeans",
-    slug: "/shop?category=jeans",
-  },
+const categories = [
+  { title: "Gaming", value: "gaming" },
+  { title: "Business", value: "business" },
+  { title: "Ultrabook", value: "ultrabook" },
+  { title: "Student", value: "student" },
+  { title: "Workstation", value: "workstation" },
 ];
 
 const CategoriesSection = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeCategory = searchParams.get("category") || "";
+
+  const handleCategoryClick = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (activeCategory === value) {
+      params.delete("category");
+    } else {
+      params.set("category", value);
+    }
+    router.push(`/shop?${params.toString()}`);
+  };
+
   return (
     <div className="flex flex-col space-y-0.5 text-black/60">
-      {categoriesData.map((category, idx) => (
-        <Link
+      {categories.map((category, idx) => (
+        <button
           key={idx}
-          href={category.slug}
-          className="flex items-center justify-between py-2"
+          type="button"
+          onClick={() => handleCategoryClick(category.value)}
+          className={cn(
+            "flex items-center justify-between py-2 text-left",
+            activeCategory === category.value && "text-black font-medium"
+          )}
         >
           {category.title} <MdKeyboardArrowRight />
-        </Link>
+        </button>
       ))}
     </div>
   );

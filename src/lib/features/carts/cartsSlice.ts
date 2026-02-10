@@ -18,16 +18,16 @@ const calcAdjustedTotalPrice = (
 };
 
 export type RemoveCartItem = {
-  id: number;
+  id: string;
   attributes: string[];
 };
 
 export type CartItem = {
-  id: number;
+  id: string;
   name: string;
   srcUrl: string;
   price: number;
-  attributes: string[];
+  attributes: string[]; // e.g. ["Intel i7-13700H", "16GB RAM", "512GB SSD"]
   discount: Discount;
   quantity: number;
 };
@@ -55,7 +55,6 @@ const initialState: CartsState = {
 
 export const cartsSlice = createSlice({
   name: "carts",
-  // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
     addToCart: (state, action: PayloadAction<CartItem>) => {
@@ -73,7 +72,7 @@ export const cartsSlice = createSlice({
         return;
       }
 
-      // check item in cart
+      // check item in cart (match by id since laptops don't have variants)
       const isItemInCart = state.cart.items.find(
         (item) =>
           action.payload.id === item.id &&
@@ -123,7 +122,6 @@ export const cartsSlice = createSlice({
     removeCartItem: (state, action: PayloadAction<RemoveCartItem>) => {
       if (state.cart === null) return;
 
-      // check item in cart
       const isItemInCart = state.cart.items.find(
         (item) =>
           action.payload.id === item.id &&
@@ -166,7 +164,6 @@ export const cartsSlice = createSlice({
     ) => {
       if (!state.cart) return;
 
-      // check item in cart
       const isItemInCart = state.cart.items.find(
         (item) =>
           action.payload.id === item.id &&

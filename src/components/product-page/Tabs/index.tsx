@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import React, { useState } from "react";
 import ProductDetailsContent from "./ProductDetailsContent";
-import ReviewsContent from "./ReviewsContent";
-import FaqContent from "./FaqContent";
+import AISummaryContent from "./AISummaryContent";
+import DescriptionContent from "./DescriptionContent";
+import { Product } from "@/types/product.types";
 
 type TabBtn = {
   id: number;
@@ -15,19 +16,19 @@ type TabBtn = {
 const tabBtnData: TabBtn[] = [
   {
     id: 1,
-    label: "Product Details",
+    label: "Specifications",
   },
   {
     id: 2,
-    label: "Rating & Reviews",
+    label: "AI Summary",
   },
   {
     id: 3,
-    label: "FAQs",
+    label: "Description",
   },
 ];
 
-const Tabs = () => {
+const Tabs = ({ product }: { product: Product }) => {
   const [active, setActive] = useState<number>(1);
 
   return (
@@ -51,9 +52,9 @@ const Tabs = () => {
         ))}
       </div>
       <div className="mb-12 sm:mb-16">
-        {active === 1 && <ProductDetailsContent />}
-        {active === 2 && <ReviewsContent />}
-        {active === 3 && <FaqContent />}
+        {active === 1 && <ProductDetailsContent product={product} />}
+        {active === 2 && <AISummaryContent product={product} />}
+        {active === 3 && <DescriptionContent product={product} />}
       </div>
     </div>
   );
