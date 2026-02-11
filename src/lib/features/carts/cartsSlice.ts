@@ -191,9 +191,54 @@ export const cartsSlice = createSlice({
           isItemInCart.quantity
         );
     },
+    /** Clear the entire cart (used after checkout or manual clear) */
+    clearCart: (state) => {
+      state.cart = null;
+      state.totalPrice = 0;
+      state.adjustedTotalPrice = 0;
+      state.action = null;
+    },
+    /** Merge items from Firestore into the current cart (used on login) */
+    mergeCartItems: (state, action: PayloadAction<CartItem[]>) => {
+      const incomingItems = action.payload;
+      if (incomingItems.length === 0) return;
+
+      // If cart is empty, set it directly
+      if (!state.cart || state.cart.items.length === 0) {
+        let totalQty = 0;
+        let totalP = 0;
+        let adjustedP = 0;
+
+        for (const item of incomingItems) {
+          totalQty += item.quantity;
+          totalP += item.price * item.quantity;
+          adjustedP += calcAdjustedTotalPrice(0, item);
+        }
+
+        state.cart = { items: incomingItems, totalQuantities: totalQty };
+        state.totalPrice = totalP;
+        state.adjustedTotalPrice = adjustedP;
+        return;
+      }
+
+      // Merge: only add items not already present (by product id)
+      for (const incoming of incomingItems) {
+        const existsLocally = state.cart.items.find(
+          (item) => item.id === incoming.id
+        );
+
+        if (!existsLocally) {
+          state.cart.items.push(incoming);
+          state.cart.totalQuantities += incoming.quantity;
+          state.totalPrice += incoming.price * incoming.quantity;
+          state.adjustedTotalPrice += calcAdjustedTotalPrice(0, incoming);
+        }
+      }
+    },
   },
 });
 
-export const { addToCart, removeCartItem, remove } = cartsSlice.actions;
+export const { addToCart, removeCartItem, remove, clearCart, mergeCartItems } =
+  cartsSlice.actions;
 
 export default cartsSlice.reducer;

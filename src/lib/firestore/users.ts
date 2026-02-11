@@ -117,3 +117,22 @@ export async function updatePriceWatcher(
     }),
   });
 }
+
+/** Save the current cart items to the user's Firestore doc */
+export async function saveUserCart(
+  uid: string,
+  items: Record<string, unknown>[]
+): Promise<void> {
+  const docRef = doc(db, COLLECTION, uid);
+  await updateDoc(docRef, { cart: items });
+}
+
+/** Read the cart items from the user's Firestore doc */
+export async function getUserCart(
+  uid: string
+): Promise<Record<string, unknown>[]> {
+  const docRef = doc(db, COLLECTION, uid);
+  const docSnap = await getDoc(docRef);
+  if (!docSnap.exists()) return [];
+  return (docSnap.data().cart as Record<string, unknown>[]) ?? [];
+}

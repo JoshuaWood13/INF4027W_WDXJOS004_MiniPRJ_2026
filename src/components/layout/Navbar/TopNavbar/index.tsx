@@ -17,6 +17,8 @@ import ResTopNavbar from "./ResTopNavbar";
 import CartBtn from "./CartBtn";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useRouter } from "next/navigation";
+import { useAppDispatch } from "@/lib/hooks/redux";
+import { clearCart } from "@/lib/features/carts/cartsSlice";
 
 const data: NavMenu = [
   {
@@ -76,6 +78,7 @@ const data: NavMenu = [
 const TopNavbar = () => {
   const { firebaseUser, appUser, loading, signOut } = useAuth();
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -100,6 +103,7 @@ const TopNavbar = () => {
 
   async function handleSignOut() {
     setDropdownOpen(false);
+    dispatch(clearCart());
     await signOut();
     router.push("/");
   }

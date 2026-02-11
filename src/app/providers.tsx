@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import { makeStore } from "../lib/store";
 import { PersistGate } from "redux-persist/integration/react";
 import { AuthProvider } from "@/lib/auth/AuthContext";
+import CartSync from "@/components/cart/CartSync";
 import SpinnerbLoader from "@/components/ui/SpinnerbLoader";
 
 type Props = {
@@ -24,7 +25,10 @@ const Providers = ({ children }: Props) => {
         }
         persistor={persistor}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <CartSync />
+          {children}
+        </AuthProvider>
       </PersistGate>
     </Provider>
   );
