@@ -8,7 +8,7 @@ export type OrderItem = {
   image: string;
 };
 
-export type PaymentType = "EFT" | "Credit Card" | "Debit Card";
+export type PaymentType = "EFT" | "Card" | "Cash on Delivery";
 
 export type OrderStatus = "pending" | "complete";
 
@@ -17,6 +17,7 @@ export type Order = {
   userId: string;
   items: OrderItem[];
   totalAmount: number;
+  shippingAddress: Address;
   paymentType: PaymentType;
   status: OrderStatus;
   isGift: boolean;
