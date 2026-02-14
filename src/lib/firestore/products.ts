@@ -16,9 +16,9 @@ import { Product } from "@/types/product.types";
 
 const COLLECTION = "products";
 
-// ---------- Helpers ----------
+// Helpers 
 
-/** Convert a Firestore document snapshot to a typed Product */
+// Convert a firestore document snapshot to a typed Product */
 function docToProduct(docSnap: any): Product {
   const data = docSnap.data();
   return {
@@ -29,7 +29,7 @@ function docToProduct(docSnap: any): Product {
   } as Product;
 }
 
-// ---------- Read ----------
+// Read
 
 export type ProductFilters = {
   category?: string;
@@ -42,22 +42,15 @@ export type ProductFilters = {
   sortBy?: "price-asc" | "price-desc" | "newest" | "sales";
 };
 
-/**
- * Get all products, optionally filtered.
- * For our 25-product catalog, we fetch all docs and apply filters in JS
- * to avoid complex Firestore composite index requirements.
- */
+// Get all products, optionally filtered.
 export async function getProducts(
-  filters?: ProductFilters
+  filters?: ProductFilters,
 ): Promise<Product[]> {
-  const q = query(
-    collection(db, COLLECTION),
-    orderBy("createdAt", "desc")
-  );
+  const q = query(collection(db, COLLECTION), orderBy("createdAt", "desc"));
   const snapshot = await getDocs(q);
   let products = snapshot.docs.map(docToProduct);
 
-  // Apply all filters in JS
+  // Apply all filters
   if (filters?.category) {
     products = products.filter((p) => p.category === filters.category);
   }
@@ -91,7 +84,6 @@ export async function getProducts(
         break;
       case "newest":
       default:
-        // Already sorted by createdAt desc from Firestore
         break;
     }
   }
@@ -104,7 +96,7 @@ export async function getProducts(
   return products;
 }
 
-/** Get a single product by ID */
+// Get a single product by ID 
 export async function getProductById(id: string): Promise<Product | null> {
   const docRef = doc(db, COLLECTION, id);
   const docSnap = await getDoc(docRef);
@@ -112,11 +104,28 @@ export async function getProductById(id: string): Promise<Product | null> {
   return docToProduct(docSnap);
 }
 
-// ---------- Write ----------
+// Get multiple products by their IDs 
+export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+  if (ids.length === 0) return [];
 
-/** Create a new product (admin) */
+  const products: Product[] = [];
+
+  // Fetch each product by ID 
+  await Promise.all(
+    ids.map(async (id) => {
+      const product = await getProductById(id);
+      if (product) products.push(product);
+    }),
+  );
+
+  return products;
+}
+
+// Write
+
+// Create a new product (admin)
 export async function createProduct(
-  data: Omit<Product, "id" | "createdAt" | "updatedAt">
+  data: Omit<Product, "id" | "createdAt" | "updatedAt">,
 ): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTION), {
     ...data,
@@ -126,10 +135,10 @@ export async function createProduct(
   return docRef.id;
 }
 
-/** Update an existing product (admin) */
+// Update an existing product (admin) 
 export async function updateProduct(
   id: string,
-  data: Partial<Omit<Product, "id" | "createdAt">>
+  data: Partial<Omit<Product, "id" | "createdAt">>,
 ): Promise<void> {
   const docRef = doc(db, COLLECTION, id);
   await updateDoc(docRef, {
@@ -138,23 +147,23 @@ export async function updateProduct(
   });
 }
 
-/** Delete a product (admin) */
+// Delete a product (admin) 
 export async function deleteProduct(id: string): Promise<void> {
   await deleteDoc(doc(db, COLLECTION, id));
 }
 
-// ---------- Counters ----------
+// Counters
 
-/** Increment the view count for a product */
+// Increment the view count for a product 
 export async function incrementViewCount(id: string): Promise<void> {
   const docRef = doc(db, COLLECTION, id);
   await updateDoc(docRef, { viewCount: increment(1) });
 }
 
-/** Increment the sales count for a product (called after order placement) */
+// Increment the sales count for a product 
 export async function incrementSalesCount(
   id: string,
-  quantity: number = 1
+  quantity: number = 1,
 ): Promise<void> {
   const docRef = doc(db, COLLECTION, id);
   await updateDoc(docRef, { salesCount: increment(quantity) });

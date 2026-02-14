@@ -6,8 +6,8 @@ import { SavedAddress } from "@/types/user.types";
 
 type AddressCardProps = {
   address: SavedAddress;
-  selected: boolean;
-  onSelect: () => void;
+  selected?: boolean;
+  onSelect?: () => void;
   onEdit: () => void;
   onDelete: () => void;
 };
@@ -19,13 +19,19 @@ export default function AddressCard({
   onEdit,
   onDelete,
 }: AddressCardProps) {
+  const selectable = onSelect !== undefined;
+
+  const Wrapper = selectable ? "button" : "div";
+  const wrapperProps = selectable
+    ? { type: "button" as const, onClick: onSelect }
+    : {};
+
   return (
-    <button
-      type="button"
-      onClick={onSelect}
+    <Wrapper
+      {...wrapperProps}
       className={cn(
         "w-full text-left rounded-xl border p-4 transition-colors",
-        selected
+        selectable && selected
           ? "border-black bg-black/[0.03]"
           : "border-black/10 hover:border-black/30"
       )}
@@ -33,18 +39,20 @@ export default function AddressCard({
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           {/* Radio indicator */}
-          <div className="mt-1 shrink-0">
-            <div
-              className={cn(
-                "w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center",
-                selected ? "border-black" : "border-black/30"
-              )}
-            >
-              {selected && (
-                <div className="w-2.5 h-2.5 rounded-full bg-black" />
-              )}
+          {selectable && (
+            <div className="mt-1 shrink-0">
+              <div
+                className={cn(
+                  "w-[18px] h-[18px] rounded-full border-2 flex items-center justify-center",
+                  selected ? "border-black" : "border-black/30"
+                )}
+              >
+                {selected && (
+                  <div className="w-2.5 h-2.5 rounded-full bg-black" />
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Address details */}
           <div className="flex-1 min-w-0">
@@ -94,6 +102,6 @@ export default function AddressCard({
           </button>
         </div>
       </div>
-    </button>
+    </Wrapper>
   );
 }

@@ -17,13 +17,16 @@ const MAX_ADDRESSES = 3;
 type View = "cards" | "add" | "edit";
 
 type AddressManagerProps = {
-  selectedId: string | null;
-  onSelect: (address: SavedAddress | null) => void;
+  selectedId?: string | null;
+  onSelect?: (address: SavedAddress | null) => void;
+  /** Defaults to "Delivery Address". */
+  heading?: string;
 };
 
 export default function AddressManager({
-  selectedId,
+  selectedId = null,
   onSelect,
+  heading = "Delivery Address",
 }: AddressManagerProps) {
   const { appUser, refreshAppUser } = useAuth();
   const [view, setView] = useState<View>("cards");
@@ -45,7 +48,7 @@ export default function AddressManager({
       await addUserAddress(appUser.uid, address);
       await refreshAppUser();
       // auto select newly created address
-      onSelect(address);
+      onSelect?.(address);
       setView("cards");
     } catch (err: any) {
       setError(err?.message || "Failed to save address.");
@@ -61,7 +64,7 @@ export default function AddressManager({
       await refreshAppUser();
       // If edited address was selected, update the selection
       if (selectedId === address.id) {
-        onSelect(address);
+        onSelect?.(address);
       }
       setEditingAddress(null);
       setView("cards");
@@ -81,7 +84,7 @@ export default function AddressManager({
       // If deleted address was selected, select another or null
       if (selectedId === addressId) {
         const remaining = addresses.filter((a) => a.id !== addressId);
-        onSelect(remaining.length > 0 ? remaining[0] : null);
+        onSelect?.(remaining.length > 0 ? remaining[0] : null);
       }
     } catch (err: any) {
       setError(err?.message || "Failed to delete address.");
@@ -156,7 +159,7 @@ export default function AddressManager({
       {errorBanner}
 
       <div className="flex items-center justify-between mb-4">
-        <h4 className="text-lg font-bold">Delivery Address</h4>
+        <h4 className="text-lg font-bold">{heading}</h4>
         {canAddMore && (
           <button
             type="button"
@@ -174,8 +177,12 @@ export default function AddressManager({
           <AddressCard
             key={addr.id}
             address={addr}
-            selected={selectedId === addr.id}
-            onSelect={() => onSelect(addr)}
+            {...(onSelect
+              ? {
+                  selected: selectedId === addr.id,
+                  onSelect: () => onSelect(addr),
+                }
+              : {})}
             onEdit={() => handleEdit(addr)}
             onDelete={() => handleDelete(addr.id)}
           />

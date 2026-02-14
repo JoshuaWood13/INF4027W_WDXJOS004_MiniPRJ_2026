@@ -8,8 +8,10 @@ import React from "react";
 
 const AddToCartBtn = ({
   data,
+  isLoggedIn = false,
 }: {
   data: Product & { quantity: number };
+  isLoggedIn?: boolean;
 }) => {
   const dispatch = useAppDispatch();
 
@@ -23,7 +25,7 @@ const AddToCartBtn = ({
   return (
     <button
       type="button"
-      className="bg-black w-full ml-3 sm:ml-5 rounded-full h-11 md:h-[52px] text-sm sm:text-base text-white hover:bg-black/80 transition-all"
+      className={`bg-black ${isLoggedIn ? "flex-1" : "w-full"} ml-3 sm:ml-5 rounded-full h-11 md:h-[52px] text-sm sm:text-base text-white hover:bg-black/80 transition-all`}
       onClick={() =>
         dispatch(
           addToCart({
@@ -34,7 +36,7 @@ const AddToCartBtn = ({
             attributes: specsSummary,
             discount: data.discount,
             quantity: data.quantity,
-          })
+          }),
         )
       }
     >

@@ -15,7 +15,7 @@ import { Order, OrderStatus } from "@/types/order.types";
 
 const COLLECTION = "orders";
 
-/** Convert a Firestore document to a typed Order */
+/** Convert a firestore document to a typed Order */
 function docToOrder(docSnap: any): Order {
   const data = docSnap.data();
   return {
@@ -31,7 +31,7 @@ export async function getOrdersByUser(userId: string): Promise<Order[]> {
   const q = query(
     collection(db, COLLECTION),
     where("userId", "==", userId),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "desc"),
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map(docToOrder);
@@ -54,7 +54,7 @@ export async function getOrderById(id: string): Promise<Order | null> {
 
 /** Create a new order (checkout) */
 export async function createOrder(
-  data: Omit<Order, "id" | "createdAt" | "updatedAt">
+  data: Omit<Order, "id" | "createdAt" | "updatedAt">,
 ): Promise<string> {
   const docRef = await addDoc(collection(db, COLLECTION), {
     ...data,
@@ -67,7 +67,7 @@ export async function createOrder(
 /** Update order status (admin) */
 export async function updateOrderStatus(
   id: string,
-  status: OrderStatus
+  status: OrderStatus,
 ): Promise<void> {
   const docRef = doc(db, COLLECTION, id);
   await updateDoc(docRef, {
