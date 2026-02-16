@@ -16,7 +16,7 @@ import InputGroup from "@/components/ui/input-group";
 import ResTopNavbar from "./ResTopNavbar";
 import CartBtn from "./CartBtn";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch } from "@/lib/hooks/redux";
 import { clearCart } from "@/lib/features/carts/cartsSlice";
 
@@ -78,9 +78,21 @@ const data: NavMenu = [
 const TopNavbar = () => {
   const { firebaseUser, appUser, loading, signOut } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState("");
   const dispatch = useAppDispatch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Handle search query
+  function handleSearch() {
+    if (searchQuery.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+    else {
+      router.push(`/shop`);
+    }
+  }
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -107,6 +119,12 @@ const TopNavbar = () => {
     await signOut();
     router.push("/");
   }
+
+  //Update search query for back/forward navigation
+  useEffect(() => {
+    const search = searchParams.get("search") || "";
+    setSearchQuery(search);
+  }, [searchParams]);
 
   return (
     <nav className="sticky top-0 bg-white z-20">
@@ -141,24 +159,38 @@ const TopNavbar = () => {
         </NavigationMenu>
         <InputGroup className="hidden md:flex bg-[#F0F0F0] mr-3 lg:mr-10">
           <InputGroup.Text>
-            <Image
-              priority
-              src="/icons/search.svg"
-              height={20}
-              width={20}
-              alt="search"
-              className="min-w-5 min-h-5"
-            />
+            <button type="submit" onClick={handleSearch} aria-label="Search" className="flex items-center">
+              <Image
+                priority
+                src="/icons/search.svg"
+                height={20}
+                width={20}
+                alt="search"
+                className="min-w-5 min-h-5"
+              />
+            </button>
           </InputGroup.Text>
           <InputGroup.Input
             type="search"
             name="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter'){
+                handleSearch();
+              }
+            }}
             placeholder="Search for products..."
             className="bg-transparent placeholder:text-black/40"
           />
         </InputGroup>
         <div className="flex items-center">
-          <Link href="/search" className="block md:hidden mr-[14px] p-1">
+          <button 
+            type="button"
+            onClick={() => router.push("/shop")}
+            className="block md:hidden mr-[14px] p-1"
+            aria-label="Search"
+          >
             <Image
               priority
               src="/icons/search-black.svg"
@@ -167,7 +199,7 @@ const TopNavbar = () => {
               alt="search"
               className="max-w-[22px] max-h-[22px]"
             />
-          </Link>
+          </button>
           <CartBtn />
 
           {/* User icon + dropdown */}

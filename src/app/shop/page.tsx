@@ -6,13 +6,16 @@ import { FiSliders } from "react-icons/fi";
 import ProductCard from "@/components/common/ProductCard";
 import { getProducts } from "@/lib/firestore/products";
 import ShopSortSelect from "@/components/shop-page/ShopSortSelect";
+//import { p } from "framer-motion/client";
 
 type ShopPageProps = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
-  // Extract filter values from URL search params
+  // Extract search query + filter values from URL search params
+  const search = 
+    typeof searchParams.search === "string" ? searchParams.search : undefined;
   const category =
     typeof searchParams.category === "string"
       ? searchParams.category
@@ -45,22 +48,44 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     sortBy: sort || "newest",
   });
 
-  // Apply RAM filter in JS (specs.ram contains values like "16GB DDR5")
+  // Apply search filter
+  if (search) {
+    const searchLower = search.toLowerCase();
+    products = products.filter((p) => {
+      const nameMatch = p.name?.toLowerCase().includes(searchLower) || false;
+      const brandMatch = p.brand?.toLowerCase().includes(searchLower) || false;
+      const categoryMatch = p.category?.toLowerCase().includes(searchLower) || false;
+      const descriptionMatch = p.description?.toLowerCase().includes(searchLower) || false;
+      // Search specs
+      const specsMatch = Object.values(p.specs).some((spec) =>
+        String(spec).toLowerCase().includes(searchLower)
+      ) || false;
+
+      const tagsMatch = p.tags?.some((tag) =>
+        String(tag).toLowerCase().includes(searchLower)
+      ) || false;
+
+      return nameMatch || brandMatch || categoryMatch || descriptionMatch || specsMatch || tagsMatch;
+    });
+  }
+
+  // Apply RAM filter
   if (ram) {
     products = products.filter((p) =>
       p.specs.ram.toLowerCase().includes(ram.toLowerCase())
     );
   }
 
-  // Apply screen size filter in JS (specs.screenSize contains values like '15.6"')
+  // Apply screen size filter
   if (screen) {
     products = products.filter((p) =>
       p.specs.screenSize.includes(screen.replace('"', ""))
     );
   }
 
-  // Build a descriptive title
+  // Build title
   const titleParts: string[] = [];
+  if (search) titleParts.push(`Results for: "${search}"`);
   if (category) titleParts.push(category.charAt(0).toUpperCase() + category.slice(1));
   if (brand) titleParts.push(brand);
   const pageTitle = titleParts.length > 0 ? titleParts.join(" — ") : "All Laptops";
