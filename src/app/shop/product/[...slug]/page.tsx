@@ -6,6 +6,7 @@ import Header from "@/components/product-page/Header";
 import Tabs from "@/components/product-page/Tabs";
 import { getProductById, getProducts } from "@/lib/firestore/products";
 import { notFound } from "next/navigation";
+import ViewTracker from "@/components/product-page/ViewTracker";
 
 export default async function ProductPage({
   params,
@@ -30,6 +31,7 @@ export default async function ProductPage({
 
   return (
     <main>
+      <ViewTracker productId={product.id} /> {/* Track views */}
       <div className="max-w-frame mx-auto px-4 xl:px-0">
         <hr className="h-[1px] border-t-black/10 mb-5 sm:mb-6" />
         <BreadcrumbProduct title={product.name} />
