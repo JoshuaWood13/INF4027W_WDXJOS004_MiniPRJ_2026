@@ -1,14 +1,9 @@
-import { cn } from "@/lib/utils";
-import { integralCF } from "@/styles/fonts";
-
-export default function AdminDashboardPage() {
+export default function AdminDashboard() {
   return (
-    <div className="max-w-frame mx-auto px-4 xl:px-0 py-12">
-      <h1 className={cn(integralCF.className, "text-3xl lg:text-4xl mb-4")}>
-        ADMIN DASHBOARD
-      </h1>
+    <div>
+      <h3 className="text-2xl font-bold mb-4">Dashboard Overview</h3>
       <p className="text-black/60">
-        This is a placeholder for admin dashboard
+        To be implemented.
       </p>
     </div>
   );
