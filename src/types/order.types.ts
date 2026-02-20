@@ -17,6 +17,7 @@ export type Order = {
   userId: string;
   items: OrderItem[];
   totalAmount: number;
+  totalCost: number;
   shippingAddress: Address;
   paymentType: PaymentType;
   status: OrderStatus;

@@ -17,7 +17,7 @@ import AddressManager from "@/components/address/AddressManager";
 import { SavedAddress } from "@/types/user.types";
 import { PaymentType } from "@/types/order.types";
 import { createOrder } from "@/lib/firestore/orders";
-import { incrementSalesCount } from "@/lib/firestore/products";
+import { incrementSalesCount, getProductsByIds } from "@/lib/firestore/products";
 import { saveUserCart } from "@/lib/firestore/users";
 import {
   Breadcrumb,
@@ -188,19 +188,30 @@ function CheckoutContent() {
 
     try {
       // Buildd order items from cart
-      const orderItems = cart.items.map((item) => ({
-        productId: item.id,
-        name: item.name,
-        price: calcDiscountedPrice(item.price, item.discount),
-        quantity: item.quantity,
-        image: item.srcUrl,
-      }));
+      const cartProductIds = cart.items.map((item) => item.id);
+      const cartProducts = await getProductsByIds(cartProductIds);
+
+      const orderItems = cart.items.map((item) => {
+        const product = cartProducts.find((p) => p.id === item.id);
+        const cost = product?.cost ?? 0;
+        return {
+          productId: item.id,
+          name: item.name,
+          price: calcDiscountedPrice(item.price, item.discount),
+          cost,
+          quantity: item.quantity,
+          image: item.srcUrl,
+        };
+      });
+
+      const totalCost = orderItems.reduce((sum, item) => sum + item.cost * item.quantity, 0);
 
       // Create order in firestore
       const orderId = await createOrder({
         userId: firebaseUser.uid,
         items: orderItems,
         totalAmount: Math.round(adjustedTotalPrice),
+        totalCost: Math.round(totalCost),
         shippingAddress: {
           street: selectedAddress.street,
           suburb: selectedAddress.suburb,
