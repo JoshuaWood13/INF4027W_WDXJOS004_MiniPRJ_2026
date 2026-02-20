@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { getAllOrders } from "@/lib/firestore/orders";
 import { Order } from "@/types/order.types";
 import FinanceTab from "./tabs/FinanceTab";
+import ProductsTab from "./tabs/ProductsTab";
 
 type TabId = "finance" | "products" | "customer";
 
@@ -54,15 +55,9 @@ export default function AdminReports() {
       ) : (
         <>
           {activeTab === "finance" && <FinanceTab orders={orders} />}
-          {activeTab === "products" && (
-            <p className="text-sm text-black/40">
-              Products report.
-            </p>
-          )}
+          {activeTab === "products" && <ProductsTab />}
           {activeTab === "customer" && (
-            <p className="text-sm text-black/40">
-              Customer report.
-            </p>
+            <p className="text-sm text-black/40">Customer report.</p>
           )}
         </>
       )}
