@@ -19,6 +19,8 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch } from "@/lib/hooks/redux";
 import { clearCart } from "@/lib/features/carts/cartsSlice";
+import { PiSparkleBold } from "react-icons/pi";
+import AISearchPanel from "./AISearchPanel";
 
 const data: NavMenu = [
   {
@@ -83,18 +85,19 @@ const TopNavbar = () => {
   const dispatch = useAppDispatch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
+  const aiPanelRef = useRef<HTMLDivElement>(null);
 
   // Handle search query
   function handleSearch() {
     if (searchQuery.trim()) {
       router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
-    }
-    else {
+    } else {
       router.push(`/shop`);
     }
   }
 
-  // Close dropdown on outside click
+  // Close profile dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -109,6 +112,23 @@ const TopNavbar = () => {
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [dropdownOpen]);
+
+  // Close AI panel on outside click
+  useEffect(() => {
+    function handleAiClickOutside(e: MouseEvent) {
+      if (
+        aiPanelRef.current &&
+        !aiPanelRef.current.contains(e.target as Node)
+      ) {
+        setAiPanelOpen(false);
+      }
+    }
+    if (aiPanelOpen) {
+      document.addEventListener("mousedown", handleAiClickOutside);
+    }
+    return () =>
+      document.removeEventListener("mousedown", handleAiClickOutside);
+  }, [aiPanelOpen]);
 
   const isLoggedIn = !loading && !!firebaseUser;
   const isAdmin = appUser?.role === "admin";
@@ -159,7 +179,12 @@ const TopNavbar = () => {
         </NavigationMenu>
         <InputGroup className="hidden md:flex bg-[#F0F0F0] mr-3 lg:mr-10">
           <InputGroup.Text>
-            <button type="submit" onClick={handleSearch} aria-label="Search" className="flex items-center">
+            <button
+              type="submit"
+              onClick={handleSearch}
+              aria-label="Search"
+              className="flex items-center"
+            >
               <Image
                 priority
                 src="/icons/search.svg"
@@ -176,7 +201,7 @@ const TopNavbar = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter'){
+              if (e.key === "Enter") {
                 handleSearch();
               }
             }}
@@ -185,7 +210,7 @@ const TopNavbar = () => {
           />
         </InputGroup>
         <div className="flex items-center">
-          <button 
+          <button
             type="button"
             onClick={() => router.push("/shop")}
             className="block md:hidden mr-[14px] p-1"
@@ -200,6 +225,27 @@ const TopNavbar = () => {
               className="max-w-[22px] max-h-[22px]"
             />
           </button>
+
+          {/* AI search trigger */}
+          <div className="relative mr-[14px]" ref={aiPanelRef}>
+            <button
+              type="button"
+              onClick={() => {
+                setAiPanelOpen((prev) => !prev);
+                setDropdownOpen(false);
+              }}
+              className="p-1 -top-0.5 relative"
+              aria-label="AI product search"
+              aria-expanded={aiPanelOpen}
+            >
+              <PiSparkleBold size={25} />
+            </button>
+            {aiPanelOpen && (
+              <AISearchPanel onClose={() => setAiPanelOpen(false)} />
+            )}
+          </div>
+          
+          {/* Cart button */}
           <CartBtn />
 
           {/* User icon + dropdown */}
@@ -228,7 +274,9 @@ const TopNavbar = () => {
                     {/* User info */}
                     <div className="px-4 py-2.5 border-b border-black/5">
                       <p className="font-medium text-sm truncate">
-                        {appUser?.displayName || firebaseUser?.displayName || "User"}
+                        {appUser?.displayName ||
+                          firebaseUser?.displayName ||
+                          "User"}
                       </p>
                       <p className="text-xs text-black/50 truncate">
                         {firebaseUser?.email}

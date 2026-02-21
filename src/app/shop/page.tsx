@@ -6,15 +6,20 @@ import { FiSliders } from "react-icons/fi";
 import ProductCard from "@/components/common/ProductCard";
 import { getProducts } from "@/lib/firestore/products";
 import ShopSortSelect from "@/components/shop-page/ShopSortSelect";
-//import { p } from "framer-motion/client";
 
 type ShopPageProps = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
 export default async function ShopPage({ searchParams }: ShopPageProps) {
+  // AI results = comma-separated ranked product IDs
+  const aiResultsParam =
+    typeof searchParams.aiResults === "string"
+      ? searchParams.aiResults
+      : undefined;
+
   // Extract search query + filter values from URL search params
-  const search = 
+  const search =
     typeof searchParams.search === "string" ? searchParams.search : undefined;
   const category =
     typeof searchParams.category === "string"
@@ -39,7 +44,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       ? (searchParams.sort as "price-asc" | "price-desc" | "newest" | "sales")
       : undefined;
 
-  // Fetch products from Firestore with applicable filters
+  // Fetch products from Firestore with any filters
   let products = await getProducts({
     category,
     brand,
@@ -47,6 +52,37 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     maxPrice,
     sortBy: sort || "newest",
   });
+
+  // When AI results are present, use the AI-ranked product set. Filters are then applied ontop.
+  const isAiResults = Boolean(aiResultsParam);
+  if (isAiResults && aiResultsParam) {
+    const orderedIds = aiResultsParam
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    // Fetch the full product list
+    const allProducts = await getProducts();
+    const productMap = new Map(allProducts.map((p) => [p.id, p]));
+    // Use AI rank order
+    products = orderedIds
+      .map((id) => productMap.get(id))
+      .filter((p): p is NonNullable<typeof p> => Boolean(p));
+
+    // Re-apply filters
+    if (category) products = products.filter((p) => p.category === category);
+    if (brand) products = products.filter((p) => p.brand === brand);
+    if (minPrice !== undefined) products = products.filter((p) => p.price >= minPrice);
+    if (maxPrice !== undefined) products = products.filter((p) => p.price <= maxPrice);
+
+    if (sort) {
+      switch (sort) {
+        case "price-asc": products.sort((a, b) => a.price - b.price); break;
+        case "price-desc": products.sort((a, b) => b.price - a.price); break;
+        case "newest": products.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()); break;
+        case "sales": products.sort((a, b) => b.salesCount - a.salesCount); break;
+      }
+    }
+  }
 
   // Apply search filter
   if (search) {
@@ -57,13 +93,15 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
       const categoryMatch = p.category?.toLowerCase().includes(searchLower) || false;
       const descriptionMatch = p.description?.toLowerCase().includes(searchLower) || false;
       // Search specs
-      const specsMatch = Object.values(p.specs).some((spec) =>
-        String(spec).toLowerCase().includes(searchLower)
-      ) || false;
+      const specsMatch =
+        Object.values(p.specs).some((spec) =>
+          String(spec).toLowerCase().includes(searchLower),
+        ) || false;
 
-      const tagsMatch = p.tags?.some((tag) =>
-        String(tag).toLowerCase().includes(searchLower)
-      ) || false;
+      const tagsMatch =
+        p.tags?.some((tag) =>
+          String(tag).toLowerCase().includes(searchLower),
+        ) || false;
 
       return nameMatch || brandMatch || categoryMatch || descriptionMatch || specsMatch || tagsMatch;
     });
@@ -72,23 +110,26 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   // Apply RAM filter
   if (ram) {
     products = products.filter((p) =>
-      p.specs.ram.toLowerCase().includes(ram.toLowerCase())
+      p.specs.ram.toLowerCase().includes(ram.toLowerCase()),
     );
   }
 
   // Apply screen size filter
   if (screen) {
     products = products.filter((p) =>
-      p.specs.screenSize.includes(screen.replace('"', ""))
+      p.specs.screenSize.includes(screen.replace('"', "")),
     );
   }
 
   // Build title
   const titleParts: string[] = [];
+  if (isAiResults) titleParts.push("AI Recommendations");
   if (search) titleParts.push(`Results for: "${search}"`);
-  if (category) titleParts.push(category.charAt(0).toUpperCase() + category.slice(1));
+  if (category)
+    titleParts.push(category.charAt(0).toUpperCase() + category.slice(1));
   if (brand) titleParts.push(brand);
-  const pageTitle = titleParts.length > 0 ? titleParts.join(" — ") : "All Laptops";
+  const pageTitle =
+    titleParts.length > 0 ? titleParts.join(" — ") : "All Laptops";
 
   return (
     <main className="pb-20">
@@ -101,7 +142,13 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
               <span className="font-bold text-black text-xl">Filters</span>
               <FiSliders className="text-2xl text-black/40" />
             </div>
-            <Suspense fallback={<div className="py-4 text-sm text-black/40">Loading filters...</div>}>
+            <Suspense
+              fallback={
+                <div className="py-4 text-sm text-black/40">
+                  Loading filters...
+                </div>
+              }
+            >
               <Filters />
             </Suspense>
           </div>

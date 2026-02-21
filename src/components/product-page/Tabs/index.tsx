@@ -20,11 +20,11 @@ const tabBtnData: TabBtn[] = [
   },
   {
     id: 2,
-    label: "AI Summary",
+    label: "Description",
   },
   {
     id: 3,
-    label: "Description",
+    label: "AI Summary",
   },
 ];
 
@@ -53,8 +53,8 @@ const Tabs = ({ product }: { product: Product }) => {
       </div>
       <div className="mb-12 sm:mb-16">
         {active === 1 && <ProductDetailsContent product={product} />}
-        {active === 2 && <AISummaryContent product={product} />}
-        {active === 3 && <DescriptionContent product={product} />}
+        {active === 2 && <DescriptionContent product={product} />}
+        {active === 3 && <AISummaryContent product={product} />}
       </div>
     </div>
   );
