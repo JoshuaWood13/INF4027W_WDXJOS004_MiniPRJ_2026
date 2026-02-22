@@ -14,6 +14,7 @@ import {
 import { auth } from "@/lib/firebase";
 import { AppUser } from "@/types/user.types";
 import { getUserByUid, createUser } from "@/lib/firestore/users";
+import { generateFriendCode } from "@/lib/utils";
 
 // ---------- Types ----------
 
@@ -31,7 +32,7 @@ type AuthActions = {
   signUp: (
     email: string,
     password: string,
-    displayName: string
+    displayName: string,
   ) => Promise<void>;
   /** Sign in with email/password */
   signIn: (email: string, password: string) => Promise<void>;
@@ -91,12 +92,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function signUp(
     email: string,
     password: string,
-    displayName: string
+    displayName: string,
   ): Promise<void> {
     const credential = await createUserWithEmailAndPassword(
       auth,
       email,
-      password
+      password,
     );
 
     // Set displayName on Firebase Auth profile
@@ -107,6 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       uid: credential.user.uid,
       email: credential.user.email!,
       displayName,
+      friendCode: generateFriendCode(),
     });
 
     // Fetch the newly created Firestore profile
@@ -115,11 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function signIn(email: string, password: string): Promise<void> {
-    const credential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    const credential = await signInWithEmailAndPassword(auth, email, password);
 
     // Fetch Firestore profile
     const profile = await fetchAppUser(credential.user.uid);
@@ -139,6 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         uid: user.uid,
         email: user.email!,
         displayName: user.displayName || user.email!.split("@")[0],
+        friendCode: generateFriendCode(),
       });
       profile = await fetchAppUser(user.uid);
     }

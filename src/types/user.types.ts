@@ -28,5 +28,22 @@ export type AppUser = {
   addresses: SavedAddress[]; // Up to 3 saved addresses
   wishlist: string[]; // Array of product IDs
   priceWatchers: PriceWatcher[]; // Array of {productId, targetPrice}
+  friendCode: string; // 8-char alphanumeric mixed-case, unique
+  friends: string[]; // Array of friend UIDs
+  incomingRequests: IncomingRequest[]; // Pending friend requests received
+  outgoingRequests: OutgoingRequest[]; // Pending friend requests sent
   createdAt: Date;
+};
+
+/** A friend request received by the current user */
+export type IncomingRequest = {
+  fromUid: string;
+  fromDisplayName: string;
+  sentAt: Date;
+};
+
+/** A friend request sent by the current user */
+export type OutgoingRequest = {
+  toUid: string;
+  sentAt: Date;
 };

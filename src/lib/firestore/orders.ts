@@ -64,7 +64,7 @@ export async function createOrder(
   return docRef.id;
 }
 
-/** Update order status (admin) */
+/** Update order status */
 export async function updateOrderStatus(
   id: string,
   status: OrderStatus,
@@ -74,4 +74,43 @@ export async function updateOrderStatus(
     status,
     updatedAt: Timestamp.now(),
   });
+}
+
+/** Partially update any fields on an order document */
+export async function updateOrder(
+  id: string,
+  data: Partial<Omit<Order, "id" | "createdAt">>,
+): Promise<void> {
+  const docRef = doc(db, COLLECTION, id);
+  await updateDoc(docRef, {
+    ...data,
+    updatedAt: Timestamp.now(),
+  });
+}
+
+/** Get pending gift orders where the current user is the recipient */
+export async function getGiftOrdersForRecipient(
+  recipientUid: string,
+): Promise<Order[]> {
+  const q = query(
+    collection(db, COLLECTION),
+    where("giftRecipientId", "==", recipientUid),
+    where("status", "==", "pending"),
+    orderBy("createdAt", "desc"),
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(docToOrder);
+}
+
+/** Get all gift orders received by the current user (for order history) */
+export async function getReceivedGiftOrders(
+  recipientUid: string,
+): Promise<Order[]> {
+  const q = query(
+    collection(db, COLLECTION),
+    where("giftRecipientId", "==", recipientUid),
+    orderBy("createdAt", "desc"),
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(docToOrder);
 }

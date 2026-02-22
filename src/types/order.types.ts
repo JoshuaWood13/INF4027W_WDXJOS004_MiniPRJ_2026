@@ -10,7 +10,7 @@ export type OrderItem = {
 
 export type PaymentType = "EFT" | "Card" | "Cash on Delivery";
 
-export type OrderStatus = "pending" | "complete";
+export type OrderStatus = "pending" | "complete" | "refunded";
 
 export type Order = {
   id: string;
@@ -18,12 +18,13 @@ export type Order = {
   items: OrderItem[];
   totalAmount: number;
   totalCost: number;
-  shippingAddress: Address;
+  shippingAddress?: Address; 
   paymentType: PaymentType;
   status: OrderStatus;
   isGift: boolean;
   giftRecipientId?: string;
-  giftRecipientAddress?: Address;
+  recipientDisplayName?: string; // Snapshotted at order creation
+  senderDisplayName?: string; // Snapshotted at order creation 
   giftMessage?: string;
   isAutoBuy: boolean;
   createdAt: Date;
