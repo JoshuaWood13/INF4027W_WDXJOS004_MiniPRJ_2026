@@ -14,6 +14,7 @@ import {
   FiMapPin,
   FiHeart,
   FiPackage,
+  FiUsers,
   FiLogOut,
 } from "react-icons/fi";
 
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { href: "/account/addresses", label: "Addresses", icon: FiMapPin },
   { href: "/account/wishlist", label: "Wishlist", icon: FiHeart },
   { href: "/account/orders", label: "Orders", icon: FiPackage },
+  { href: "/account/friends", label: "Friends", icon: FiUsers },
 ] as const;
 
 function AccountShell({ children }: { children: React.ReactNode }) {
@@ -48,7 +50,7 @@ function AccountShell({ children }: { children: React.ReactNode }) {
         <h2
           className={cn(
             integralCF.className,
-            "font-bold text-[32px] md:text-[40px] text-black uppercase mb-1 md:mb-2 pt-5 md:pt-6"
+            "font-bold text-[32px] md:text-[40px] text-black uppercase mb-1 md:mb-2 pt-5 md:pt-6",
           )}
         >
           My Account
@@ -72,7 +74,7 @@ function AccountShell({ children }: { children: React.ReactNode }) {
                       "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
                       active
                         ? "bg-black text-white"
-                        : "bg-[#F0F0F0] text-black/60 hover:text-black hover:bg-black/10"
+                        : "bg-[#F0F0F0] text-black/60 hover:text-black hover:bg-black/10",
                     )}
                   >
                     <item.icon className="text-base" />
@@ -102,13 +104,13 @@ function AccountShell({ children }: { children: React.ReactNode }) {
                       "flex items-center gap-3 py-3 px-3 -mr-px border-r-2 text-sm transition-colors",
                       active
                         ? "border-black text-black font-semibold"
-                        : "border-transparent text-black/50 hover:text-black hover:border-black/20"
+                        : "border-transparent text-black/50 hover:text-black hover:border-black/20",
                     )}
                   >
                     <item.icon
                       className={cn(
                         "text-lg",
-                        active ? "text-black" : "text-black/40"
+                        active ? "text-black" : "text-black/40",
                       )}
                     />
                     {item.label}
