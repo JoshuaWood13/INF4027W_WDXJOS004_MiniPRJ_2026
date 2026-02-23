@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { cn, formatPrice } from "@/lib/utils";
@@ -25,11 +25,15 @@ import {
   FiCreditCard,
   FiShoppingBag,
   FiArrowRight,
+  FiGift,
 } from "react-icons/fi";
 
 function OrderConfirmationContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const orderId = params.id as string;
+  const giftOrderId = searchParams.get("giftOrderId");
+  const fromCheckout = searchParams.get("from") === "checkout";
   const { firebaseUser } = useAuth();
 
   const [order, setOrder] = useState<Order | null>(null);
@@ -44,7 +48,10 @@ function OrderConfirmationContent() {
         const data = await getOrderById(orderId);
         if (!data) {
           setError("Order not found.");
-        } else if (data.userId !== firebaseUser!.uid) {
+        } else if (
+          data.userId !== firebaseUser!.uid &&
+          data.giftRecipientId !== firebaseUser!.uid
+        ) {
           setError("You do not have permission to view this order.");
         } else {
           setOrder(data);
@@ -88,9 +95,10 @@ function OrderConfirmationContent() {
   }
 
   // Format order date
-  const orderDate = order.createdAt instanceof Date
-    ? order.createdAt
-    : new Date(order.createdAt);
+  const orderDate =
+    order.createdAt instanceof Date
+      ? order.createdAt
+      : new Date(order.createdAt);
   const formattedDate = orderDate.toLocaleDateString("en-ZA", {
     year: "numeric",
     month: "long",
@@ -100,6 +108,10 @@ function OrderConfirmationContent() {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  // Determine who is viewing the order 
+  const isViewingAsRecipient =
+    order.isGift && order.giftRecipientId === firebaseUser?.uid;
 
   return (
     <main className="pb-20">
@@ -113,16 +125,56 @@ function OrderConfirmationContent() {
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
+            {!fromCheckout && (
+              <>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link href="/account/orders">Orders</Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+              </>
+            )}
             <BreadcrumbItem>
               <BreadcrumbPage>Order Confirmation</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
 
+        {/* Gift order companion banner (mixed scenario) */}
+        {giftOrderId && (
+          <div className="max-w-2xl mx-auto mb-6 bg-purple-50 border border-purple-200 rounded-[16px] p-4 flex items-start gap-3">
+            <FiGift className="text-purple-500 text-xl flex-shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-purple-900 mb-0.5">
+                Gift order sent!
+              </p>
+              <p className="text-xs text-purple-700">
+                Your gift is awaiting the recipient&apos;s acceptance.{" "}
+                <Link
+                  href={`/order-confirmation/${giftOrderId}`}
+                  className="underline font-medium hover:text-purple-900"
+                >
+                  View gift order →
+                </Link>
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Success header */}
         <div className="text-center mb-8 md:mb-10">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FiCheck className="text-green-600 text-3xl" strokeWidth={3} />
+          <div
+            className={cn(
+              "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4",
+              order.isGift ? "bg-purple-100" : "bg-green-100",
+            )}
+          >
+            {order.isGift ? (
+              <FiGift className="text-purple-600 text-3xl" />
+            ) : (
+              <FiCheck className="text-green-600 text-3xl" strokeWidth={3} />
+            )}
           </div>
           <h2
             className={cn([
@@ -130,11 +182,28 @@ function OrderConfirmationContent() {
               "font-bold text-[28px] md:text-[36px] text-black uppercase mb-2",
             ])}
           >
-            Order Confirmed
+            {isViewingAsRecipient
+              ? order.status === "complete"
+                ? "Gift Accepted"
+                : order.status === "refunded"
+                  ? "Gift Declined"
+                  : "You Got a Gift!"
+              : order.isGift
+                ? "Gift Sent!"
+                : "Order Confirmed"}
           </h2>
           <p className="text-black/60 text-sm md:text-base">
-            Thank you for your purchase! Your order has been placed
-            successfully.
+            {isViewingAsRecipient
+              ? order.status === "complete"
+                ? `Your gift from ${order.senderDisplayName ?? "someone"} has been accepted and is on its way.`
+                : order.status === "refunded"
+                  ? "You declined this gift."
+                  : `${order.senderDisplayName ?? "Someone"} sent you a gift! Accept it from your Friends page.`
+              : order.isGift
+                ? `Your gift is on its way to ${
+                    order.recipientDisplayName ?? "the recipient"
+                  }. They'll be notified to accept it.`
+                : "Thank you for your purchase! Your order has been placed successfully."}
           </p>
         </div>
 
@@ -163,10 +232,18 @@ function OrderConfirmationContent() {
                   "inline-block text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full",
                   order.status === "complete"
                     ? "bg-green-100 text-green-700"
-                    : "bg-yellow-100 text-yellow-700"
+                    : order.status === "refunded"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-yellow-100 text-yellow-700",
                 )}
               >
-                {order.status === "complete" ? "Complete" : "Pending"}
+                {order.status === "complete"
+                  ? "Complete"
+                  : order.status === "refunded"
+                    ? "Declined / Refunded"
+                    : order.isGift
+                      ? "Awaiting Acceptance"
+                      : "Pending"}
               </span>
             </div>
 
@@ -208,24 +285,76 @@ function OrderConfirmationContent() {
 
             {/* Address + Payment row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              {/* Delivery address */}
+              {/* Delivery address OR gift recipient */}
               <div>
                 <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                  <FiMapPin className="text-black/60" />
-                  Delivery Address
+                  {order.isGift ? (
+                    <FiGift className="text-black/60" />
+                  ) : (
+                    <FiMapPin className="text-black/60" />
+                  )}
+                  {isViewingAsRecipient
+                    ? "Your Delivery Address"
+                    : order.isGift
+                      ? "Gift Recipient"
+                      : "Delivery Address"}
                 </h4>
-                <p className="text-sm text-black/70">
-                  {order.shippingAddress.street}
-                </p>
-                <p className="text-sm text-black/70">
-                  {order.shippingAddress.suburb}
-                  {order.shippingAddress.suburb && ", "}
-                  {order.shippingAddress.city},{" "}
-                  {order.shippingAddress.postalCode}
-                </p>
-                <p className="text-xs text-black/40">
-                  {order.shippingAddress.province}
-                </p>
+                {order.isGift ? (
+                  <>
+                    {!isViewingAsRecipient && (
+                      <p className="text-sm text-black/70">
+                        {order.recipientDisplayName ?? "Recipient"}
+                      </p>
+                    )}
+                    {order.shippingAddress ? (
+                      <>
+                        <p className="text-sm text-black/70">
+                          {order.shippingAddress.street}
+                        </p>
+                        <p className="text-sm text-black/70">
+                          {order.shippingAddress.suburb}
+                          {order.shippingAddress.suburb && ", "}
+                          {order.shippingAddress.city},{" "}
+                          {order.shippingAddress.postalCode}
+                        </p>
+                        <p className="text-xs text-black/40">
+                          {order.shippingAddress.province}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-xs text-black/40 mt-1">
+                        {isViewingAsRecipient
+                          ? "Accept the gift to provide your address."
+                          : "Awaiting recipient\u2019s address"}
+                      </p>
+                    )}
+                    {order.giftMessage && (
+                      <p className="text-xs text-black/50 mt-2 italic">
+                        &ldquo;{order.giftMessage}&rdquo;
+                      </p>
+                    )}
+                    {isViewingAsRecipient && (
+                      <p className="text-xs text-black/40 mt-2">
+                        From: {order.senderDisplayName ?? "Unknown sender"}
+                      </p>
+                    )}
+                  </>
+                ) : order.shippingAddress ? (
+                  <>
+                    <p className="text-sm text-black/70">
+                      {order.shippingAddress.street}
+                    </p>
+                    <p className="text-sm text-black/70">
+                      {order.shippingAddress.suburb}
+                      {order.shippingAddress.suburb && ", "}
+                      {order.shippingAddress.city},{" "}
+                      {order.shippingAddress.postalCode}
+                    </p>
+                    <p className="text-xs text-black/40">
+                      {order.shippingAddress.province}
+                    </p>
+                  </>
+                ) : null}
               </div>
 
               {/* Payment method */}
@@ -252,10 +381,10 @@ function OrderConfirmationContent() {
           {/* Action links */}
           <div className="flex flex-col sm:flex-row gap-3 mt-6">
             <Link
-              href="/shop"
+              href={fromCheckout ? "/shop" : "/account/orders"}
               className="flex-1 text-center bg-black text-white rounded-full py-3.5 px-4 text-sm font-medium hover:bg-black/80 transition-colors group"
             >
-              Continue Shopping{" "}
+              {fromCheckout ? "Continue Shopping" : "Back to Orders"}
               <FiArrowRight className="inline ml-1 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>

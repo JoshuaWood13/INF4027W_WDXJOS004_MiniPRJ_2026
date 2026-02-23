@@ -28,13 +28,10 @@ function docToOrder(docSnap: any): Order {
 
 /** Get all orders for a specific user */
 export async function getOrdersByUser(userId: string): Promise<Order[]> {
-  const q = query(
-    collection(db, COLLECTION),
-    where("userId", "==", userId),
-    orderBy("createdAt", "desc"),
-  );
+  const q = query(collection(db, COLLECTION), where("userId", "==", userId));
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(docToOrder);
+  const orders = snapshot.docs.map(docToOrder);
+  return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
 /** Get all orders (admin) */
@@ -96,10 +93,10 @@ export async function getGiftOrdersForRecipient(
     collection(db, COLLECTION),
     where("giftRecipientId", "==", recipientUid),
     where("status", "==", "pending"),
-    orderBy("createdAt", "desc"),
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(docToOrder);
+  const orders = snapshot.docs.map(docToOrder);
+  return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
 
 /** Get all gift orders received by the current user (for order history) */
@@ -109,8 +106,8 @@ export async function getReceivedGiftOrders(
   const q = query(
     collection(db, COLLECTION),
     where("giftRecipientId", "==", recipientUid),
-    orderBy("createdAt", "desc"),
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(docToOrder);
+  const orders = snapshot.docs.map(docToOrder);
+  return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }

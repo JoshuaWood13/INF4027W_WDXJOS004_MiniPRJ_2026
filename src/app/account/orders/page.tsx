@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { getOrdersByUser } from "@/lib/firestore/orders";
+import { getOrdersByUser, getReceivedGiftOrders } from "@/lib/firestore/orders";
 import { Order } from "@/types/order.types";
 import Link from "next/link";
 import Image from "next/image";
@@ -28,8 +28,22 @@ export default function OrdersPage() {
     async function fetchOrders() {
       if (!appUser) return;
       try {
-        const fetchedOrders = await getOrdersByUser(appUser.uid);
-        setOrders(fetchedOrders);
+        // Fetch own orders and received gifts in parallel
+        const [ownOrders, receivedGifts] = await Promise.all([
+          getOrdersByUser(appUser.uid),
+          getReceivedGiftOrders(appUser.uid),
+        ]);
+
+        // Merge, deduplicate by ID, and sort newest first (exclude pending received gifts)
+        const merged = [
+          ...ownOrders,
+          ...receivedGifts.filter(
+            (g) =>
+              !ownOrders.some((o) => o.id === g.id) && g.status !== "pending",
+          ),
+        ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+        setOrders(merged);
       } catch (error) {
         console.error("Failed to fetch orders:", error);
       } finally {
@@ -83,7 +97,11 @@ export default function OrdersPage() {
       <h3 className="text-xl md:text-2xl font-bold mb-6">Orders</h3>
       <div className="space-y-4 mb-6">
         {paginatedOrders.map((order) => (
-          <OrderCard key={order.id} order={order} />
+          <OrderCard
+            key={order.id}
+            order={order}
+            currentUserUid={appUser?.uid ?? ""}
+          />
         ))}
       </div>
 
@@ -141,26 +159,73 @@ export default function OrdersPage() {
   );
 }
 
-function OrderCard({ order }: { order: Order }) {
+function OrderCard({
+  order,
+  currentUserUid,
+}: {
+  order: Order;
+  currentUserUid: string;
+}) {
   // Get first 8 items for thumbnails
   const displayItems = order.items.slice(0, 8);
   const remainingCount = order.items.length - 8;
 
-  const statusStyles = {
+  // Determine order type for labeling
+  const isSentGift = order.isGift && order.userId === currentUserUid;
+  const isReceivedGift =
+    order.isGift && order.giftRecipientId === currentUserUid;
+
+  // Status badge styles
+  const statusStyles: Record<string, string> = {
     complete: "bg-green-100 text-green-800 border-green-200",
     pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    refunded: "bg-red-100 text-red-800 border-red-200",
   };
 
-  // Format date
+  // Status labels
+  function getStatusLabel() {
+    if (isSentGift || isReceivedGift) {
+      if (order.status === "pending") return "Awaiting Acceptance";
+      if (order.status === "complete") return "Accepted";
+      if (order.status === "refunded") return "Declined";
+    }
+    if (order.status === "complete") return "Delivered";
+    if (order.status === "refunded") return "Refunded";
+    return "Order Placed";
+  }
+
+  // Card heading
+  function getHeading() {
+    // if (isSentGift) {
+    //   return `Gift Sent to ${order.recipientDisplayName ?? "Recipient"}`;
+    // }
+    // if (isReceivedGift) {
+    //   return `Gift from ${order.senderDisplayName ?? "Someone"}`;
+    // }
+    // Regular order — show delivery status + date
+    const formattedDate = order.createdAt.toLocaleDateString("en-ZA", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    if (isSentGift) {
+      return `Gift Sent to ${order.recipientDisplayName ?? "Recipient"} - ${formattedDate}`;
+    }
+    if (isReceivedGift) {
+      return `Gift from ${order.senderDisplayName ?? "Someone"} - ${formattedDate}`;
+    }
+    const statusText =
+      order.status === "complete" ? "Delivered" : "Order Placed";
+    return `${statusText} ${formattedDate}`;
+  }
+
+  // Format date for gift orders (no "Delivered/Order Placed" prefix)
   const formattedDate = order.createdAt.toLocaleDateString("en-ZA", {
-    weekday: "short",
     day: "numeric",
     month: "short",
     year: "numeric",
   });
-
-  // Determine delivery status text
-  const statusText = order.status === "complete" ? "Delivered" : "Order Placed";
 
   return (
     <Link
@@ -171,17 +236,17 @@ function OrderCard({ order }: { order: Order }) {
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
         <div>
           <h4 className="text-base md:text-lg font-bold text-black">
-            {statusText} {formattedDate}
+            {getHeading()}
           </h4>
         </div>
         <span
           className={cn(
-            "px-3 py-1 rounded-full text-xs font-medium border capitalize self-start",
-            statusStyles[order.status] ||
+            "px-3 py-1 rounded-full text-xs font-medium border capitalize self-start whitespace-nowrap",
+            statusStyles[order.status] ??
               "bg-gray-100 text-gray-800 border-gray-200",
           )}
         >
-          {order.status}
+          {getStatusLabel()}
         </span>
       </div>
 

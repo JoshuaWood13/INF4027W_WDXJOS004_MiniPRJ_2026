@@ -18,7 +18,8 @@ import { SavedAddress } from "@/types/user.types";
 import { PaymentType } from "@/types/order.types";
 import { createOrder } from "@/lib/firestore/orders";
 import { incrementSalesCount, getProductsByIds } from "@/lib/firestore/products";
-import { saveUserCart } from "@/lib/firestore/users";
+import { saveUserCart, getFriendProfiles } from "@/lib/firestore/users";
+import GiftDetailsStep from "@/components/checkout/GiftDetailsStep";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -27,64 +28,67 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { FiCheck, FiMapPin, FiCreditCard, FiEdit2 } from "react-icons/fi";
+import {
+  FiCheck,
+  FiMapPin,
+  FiCreditCard,
+  FiEdit2,
+  FiGift,
+} from "react-icons/fi";
 
-const STEPS = [
-  { number: 1, label: "Address" },
-  { number: 2, label: "Payment" },
-  { number: 3, label: "Review" },
-] as const;
+const STEP_LABELS: Record<string, string> = {
+  address: "Address",
+  "gift-details": "Gift Details",
+  payment: "Payment",
+  review: "Review",
+};
 
-type OrderMode = "personal" | "gift";
-
-// Checkout step indicator
+// Dynamic checkout step indicator
 function StepIndicator({
-  currentStep,
+  steps,
+  currentStepIndex,
 }: {
-  currentStep: number;
+  steps: string[];
+  currentStepIndex: number;
 }) {
   return (
     <div className="flex items-center justify-center w-full mb-8">
-      {STEPS.map((step, idx) => {
-        const isActive = step.number === currentStep;
-        const isCompleted = step.number < currentStep;
+      {steps.map((step, idx) => {
+        const isActive = idx === currentStepIndex;
+        const isCompleted = idx < currentStepIndex;
 
         return (
-          <React.Fragment key={step.number}>
-            {/* Step circle + label */}
+          <React.Fragment key={step}>
             <div className="flex flex-col items-center">
               <div
                 className={cn(
                   "w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-colors",
-                  isCompleted
+                  isCompleted || isActive
                     ? "bg-black text-white"
-                    : isActive
-                    ? "bg-black text-white"
-                    : "bg-black/10 text-black/40"
+                    : "bg-black/10 text-black/40",
                 )}
               >
                 {isCompleted ? (
                   <FiCheck className="text-lg" strokeWidth={3} />
                 ) : (
-                  step.number
+                  idx + 1
                 )}
               </div>
               <span
                 className={cn(
                   "text-xs mt-1.5 font-medium",
-                  isActive || isCompleted ? "text-black" : "text-black/40"
+                  isActive || isCompleted ? "text-black" : "text-black/40",
                 )}
               >
-                {step.label}
+                {STEP_LABELS[step] ?? step}
               </span>
             </div>
 
-            {/* Connector line */}
-            {idx < STEPS.length - 1 && (
+            {idx < steps.length - 1 && (
               <div
                 className={cn(
                   "flex-1 h-[2px] mx-3 mb-5 max-w-[100px]",
-                  step.number < currentStep ? "bg-black" : "bg-black/10"
+                  idx < currentStepIndex ? "bg-black" : "bg-black/10",
                 )}
               />
             )}
@@ -95,65 +99,67 @@ function StepIndicator({
   );
 }
 
-// Order mode toggle
-function OrderModeToggle({
-  mode,
-  onModeChange,
-}: {
-  mode: OrderMode;
-  onModeChange: (mode: OrderMode) => void;
-}) {
-  return (
-    <div className="flex items-center mb-6">
-      <div className="inline-flex rounded-full border border-black/10 p-1 bg-[#F0F0F0]">
-        <button
-          type="button"
-          onClick={() => onModeChange("personal")}
-          className={cn(
-            "px-5 py-2 rounded-full text-sm font-medium transition-all",
-            mode === "personal"
-              ? "bg-black text-white"
-              : "text-black/60 hover:text-black"
-          )}
-        >
-          Personal
-        </button>
-        <button
-          type="button"
-          onClick={() => onModeChange("gift")}
-          className={cn(
-            "px-5 py-2 rounded-full text-sm font-medium transition-all",
-            mode === "gift"
-              ? "bg-black text-white"
-              : "text-black/60 hover:text-black"
-          )}
-        >
-          Gift
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function CheckoutContent() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { firebaseUser } = useAuth();
+  const { firebaseUser, appUser } = useAuth();
   const { cart, adjustedTotalPrice } = useAppSelector(
-    (state: RootState) => state.carts
+    (state: RootState) => state.carts,
   );
-  const [currentStep, setCurrentStep] = useState(1);
-  const [orderMode, setOrderMode] = useState<OrderMode>("personal");
 
-  // Selected delivery address
+  // Detect checkout scenrio based on cart items
+  const personalItems = (cart?.items ?? []).filter(
+    (i) => i.itemType !== "gift",
+  );
+  const giftItems = (cart?.items ?? []).filter((i) => i.itemType === "gift");
+  const scenario: "personal" | "gift" | "mixed" =
+    giftItems.length === 0
+      ? "personal"
+      : personalItems.length === 0
+        ? "gift"
+        : "mixed";
+
+  const steps = React.useMemo(() => {
+    if (scenario === "personal") return ["address", "payment", "review"];
+    if (scenario === "gift") return ["gift-details", "payment", "review"];
+    return ["address", "gift-details", "payment", "review"];
+  }, [scenario]);
+
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const currentStep = steps[currentStepIndex];
+
+  // Delivery address (personal / mixed)
   const [selectedAddress, setSelectedAddress] = useState<SavedAddress | null>(
-    null
+    null,
   );
   const [addressError, setAddressError] = useState("");
 
-  // Payment method
+  // Payment
   const [paymentType, setPaymentType] = useState<PaymentType | null>(null);
   const [paymentError, setPaymentError] = useState("");
+
+  // Gift details (gift / mixed)
+  const [giftRecipientUid, setGiftRecipientUid] = useState<string | null>(null);
+  const [giftRecipientDisplayName, setGiftRecipientDisplayName] = useState<
+    string | null
+  >(null);
+  const [giftMessage, setGiftMessage] = useState("");
+  const [giftError, setGiftError] = useState("");
+  const [friends, setFriends] = useState<
+    { uid: string; displayName: string }[]
+  >([]);
+  const [friendsLoading, setFriendsLoading] = useState(false);
+
+  // Load friend profiles when scenario has gifts
+  useEffect(() => {
+    if (scenario === "personal") return;
+    if (!appUser?.friends?.length) return;
+    setFriendsLoading(true);
+    getFriendProfiles(appUser.friends)
+      .then(setFriends)
+      .catch(console.error)
+      .finally(() => setFriendsLoading(false));
+  }, [scenario, appUser?.friends?.join(",")]);
 
   // Place order state
   const [placing, setPlacing] = useState(false);
@@ -166,7 +172,17 @@ function CheckoutContent() {
       return;
     }
     setAddressError("");
-    setCurrentStep(2);
+    setCurrentStepIndex((i) => i + 1);
+  }
+
+  // Validate gift details
+  function handleGiftDetailsContinue() {
+    if (!giftRecipientUid) {
+      setGiftError("Please select a recipient.");
+      return;
+    }
+    setGiftError("");
+    setCurrentStepIndex((i) => i + 1);
   }
 
   // Validate payment selection
@@ -176,73 +192,163 @@ function CheckoutContent() {
       return;
     }
     setPaymentError("");
-    setCurrentStep(3);
+    setCurrentStepIndex((i) => i + 1);
   }
 
-  // Place order
+  // Place order, handling all scenarios
   async function handlePlaceOrder() {
-    if (!firebaseUser || !cart || !selectedAddress || !paymentType) return;
+    const needsAddress = scenario !== "gift";
+    const needsGiftRecipient = scenario !== "personal";
+    if (
+      !firebaseUser ||
+      !cart ||
+      (needsAddress && !selectedAddress) ||
+      !paymentType ||
+      (needsGiftRecipient && !giftRecipientUid)
+    )
+      return;
 
     setPlacing(true);
     setPlaceError("");
 
     try {
-      // Buildd order items from cart
-      const cartProductIds = cart.items.map((item) => item.id);
+      // Fetch product details for all cart items
+      const cartProductIds = cart!.items.map((item) => item.id);
       const cartProducts = await getProductsByIds(cartProductIds);
 
-      const orderItems = cart.items.map((item) => {
-        const product = cartProducts.find((p) => p.id === item.id);
-        const cost = product?.cost ?? 0;
-        return {
-          productId: item.id,
-          name: item.name,
-          price: calcDiscountedPrice(item.price, item.discount),
-          cost,
-          quantity: item.quantity,
-          image: item.srcUrl,
-        };
-      });
+      // Build order items array from a subset of cart items
+      const buildOrderItems = (items: NonNullable<typeof cart>["items"]) =>
+        items.map((item) => {
+          const product = cartProducts.find((p) => p.id === item.id);
+          return {
+            productId: item.id,
+            name: item.name,
+            price: calcDiscountedPrice(item.price, item.discount),
+            cost: product?.cost ?? 0,
+            quantity: item.quantity,
+            image: item.srcUrl,
+          };
+        });
 
-      const totalCost = orderItems.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+      type OrderItemRow = ReturnType<typeof buildOrderItems>[number];
+      // Sum total amount and cost from order items
+      const sumItems = (items: OrderItemRow[]) =>
+        items.reduce(
+          (acc, item) => ({
+            totalAmount: acc.totalAmount + item.price * item.quantity,
+            totalCost: acc.totalCost + item.cost * item.quantity,
+          }),
+          { totalAmount: 0, totalCost: 0 },
+        );
 
-      // Create order in firestore
-      const orderId = await createOrder({
-        userId: firebaseUser.uid,
-        items: orderItems,
-        totalAmount: Math.round(adjustedTotalPrice),
-        totalCost: Math.round(totalCost),
-        shippingAddress: {
-          street: selectedAddress.street,
-          suburb: selectedAddress.suburb,
-          city: selectedAddress.city,
-          province: selectedAddress.province,
-          postalCode: selectedAddress.postalCode,
-        },
-        paymentType,
-        status: "complete",
-        isGift: false,
-        isAutoBuy: false,
-      });
+      const shippingAddr = selectedAddress
+        ? {
+            street: selectedAddress.street,
+            suburb: selectedAddress.suburb,
+            city: selectedAddress.city,
+            province: selectedAddress.province,
+            postalCode: selectedAddress.postalCode,
+          }
+        : undefined;
 
-      // Add sale count 
-      await Promise.all(
-        cart.items.map((item) => incrementSalesCount(item.id, item.quantity))
-      );
+      // Personal order only scenario
+      if (scenario === "personal") {
+        const items = buildOrderItems(cart.items);
+        const { totalAmount, totalCost } = sumItems(items);
 
-      // Clear cart in firestore
-      await saveUserCart(firebaseUser.uid, []);
+        const orderId = await createOrder({
+          userId: firebaseUser.uid,
+          items,
+          totalAmount: Math.round(totalAmount),
+          totalCost: Math.round(totalCost),
+          shippingAddress: shippingAddr,
+          paymentType,
+          status: "complete",
+          isGift: false,
+          isAutoBuy: false,
+        });
 
-      // Clear redux cart
-      dispatch(clearCart());
+        await Promise.all(
+          cart.items.map((item) => incrementSalesCount(item.id, item.quantity)),
+        );
+        await saveUserCart(firebaseUser.uid, []);
+        dispatch(clearCart());
+        router.push(`/order-confirmation/${orderId}?from=checkout`);
+      } else if (scenario === "gift") {
+        // Gift order only scenario
+        const items = buildOrderItems(cart.items);
+        const { totalAmount, totalCost } = sumItems(items);
 
-      // Redirect to order confirmation page
-      router.push(`/order-confirmation/${orderId}`);
+        const orderId = await createOrder({
+          userId: firebaseUser.uid,
+          items,
+          totalAmount: Math.round(totalAmount),
+          totalCost: Math.round(totalCost),
+          paymentType,
+          status: "pending",
+          isGift: true,
+          giftRecipientId: giftRecipientUid!,
+          recipientDisplayName: giftRecipientDisplayName ?? undefined,
+          senderDisplayName: appUser?.displayName,
+          giftMessage: giftMessage || undefined,
+          isAutoBuy: false,
+        });
+
+        await Promise.all(
+          cart.items.map((item) => incrementSalesCount(item.id, item.quantity)),
+        );
+        await saveUserCart(firebaseUser.uid, []);
+        dispatch(clearCart());
+        router.push(`/order-confirmation/${orderId}?from=checkout`);
+      } else {
+        // Personal + gift order scenario (creates two separate orders)
+        const personalOrderItems = buildOrderItems(personalItems);
+        const giftOrderItems = buildOrderItems(giftItems);
+        const { totalAmount: pAmount, totalCost: pCost } =
+          sumItems(personalOrderItems);
+        const { totalAmount: gAmount, totalCost: gCost } =
+          sumItems(giftOrderItems);
+
+        const [personalOrderId, giftOrderId] = await Promise.all([
+          createOrder({
+            userId: firebaseUser.uid,
+            items: personalOrderItems,
+            totalAmount: Math.round(pAmount),
+            totalCost: Math.round(pCost),
+            shippingAddress: shippingAddr,
+            paymentType,
+            status: "complete",
+            isGift: false,
+            isAutoBuy: false,
+          }),
+          createOrder({
+            userId: firebaseUser.uid,
+            items: giftOrderItems,
+            totalAmount: Math.round(gAmount),
+            totalCost: Math.round(gCost),
+            paymentType,
+            status: "pending",
+            isGift: true,
+            giftRecipientId: giftRecipientUid!,
+            recipientDisplayName: giftRecipientDisplayName ?? undefined,
+            senderDisplayName: appUser?.displayName,
+            giftMessage: giftMessage || undefined,
+            isAutoBuy: false,
+          }),
+        ]);
+
+        await Promise.all(
+          cart.items.map((item) => incrementSalesCount(item.id, item.quantity)),
+        );
+        await saveUserCart(firebaseUser.uid, []);
+        dispatch(clearCart());
+        router.push(
+          `/order-confirmation/${personalOrderId}?giftOrderId=${giftOrderId}&from=checkout`,
+        );
+      }
     } catch (err: any) {
       console.error("Failed to place order:", err);
-      setPlaceError(
-        err?.message || "Something went wrong. Please try again."
-      );
+      setPlaceError(err?.message || "Something went wrong. Please try again.");
       setPlacing(false);
     }
   }
@@ -295,22 +401,11 @@ function CheckoutContent() {
         <div className="flex flex-col lg:flex-row space-y-5 lg:space-y-0 lg:space-x-5 items-start">
           {/* Checkout form */}
           <div className="w-full p-5 md:p-8 rounded-[20px] border border-black/10">
-            {/* Order type toggle */}
-            <OrderModeToggle mode={orderMode} onModeChange={setOrderMode} />
-
-            {/* Gift placeholder */}
-            {orderMode === "gift" && (
-              <div className="bg-[#F0F0F0] rounded-xl p-4 mb-6 text-sm text-black/60">
-                Gift ordering to be implemented
-              </div>
-            )}
-
             {/* Step indicator */}
-            <StepIndicator currentStep={currentStep} />
-
+            <StepIndicator steps={steps} currentStepIndex={currentStepIndex} />
             {/* Step content */}
             <div className="min-h-[300px]">
-              {currentStep === 1 && (
+              {currentStep === "address" && (
                 <div>
                   <h3 className="text-lg md:text-xl font-bold mb-4">
                     Shipping Address
@@ -333,15 +428,33 @@ function CheckoutContent() {
                   <button
                     type="button"
                     onClick={handleAddressContinue}
-                    disabled={orderMode === "gift"}
-                    className="mt-6 w-full bg-black text-white rounded-full py-3.5 px-4 font-medium hover:bg-black/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="mt-6 w-full bg-black text-white rounded-full py-3.5 px-4 font-medium hover:bg-black/80 transition-colors"
                   >
-                    Continue to Payment
+                    Continue
                   </button>
                 </div>
               )}
 
-              {currentStep === 2 && (
+              {currentStep === "gift-details" && (
+                <GiftDetailsStep
+                  friends={friends}
+                  friendsLoading={friendsLoading}
+                  selectedUid={giftRecipientUid}
+                  message={giftMessage}
+                  error={giftError}
+                  onRecipientSelect={(uid, name) => {
+                    setGiftRecipientUid(uid);
+                    setGiftRecipientDisplayName(name);
+                    if (giftError) setGiftError("");
+                  }}
+                  onMessageChange={setGiftMessage}
+                  onBack={() => setCurrentStepIndex((i) => i - 1)}
+                  onContinue={handleGiftDetailsContinue}
+                  showBack={currentStepIndex > 0}
+                />
+              )}
+
+              {currentStep === "payment" && (
                 <div>
                   <h3 className="text-lg md:text-xl font-bold mb-4">
                     Payment Method
@@ -364,7 +477,7 @@ function CheckoutContent() {
                   <div className="flex space-x-3 mt-6">
                     <button
                       type="button"
-                      onClick={() => setCurrentStep(1)}
+                      onClick={() => setCurrentStepIndex((i) => i - 1)}
                       className="flex-1 border border-black/10 text-black rounded-full py-3.5 px-4 font-medium hover:bg-black/5 transition-colors"
                     >
                       Back
@@ -374,13 +487,13 @@ function CheckoutContent() {
                       onClick={handlePaymentContinue}
                       className="flex-1 bg-black text-white rounded-full py-3.5 px-4 font-medium hover:bg-black/80 transition-colors"
                     >
-                      Continue to Review
+                      Continue
                     </button>
                   </div>
                 </div>
               )}
 
-              {currentStep === 3 && (
+              {currentStep === "review" && (
                 <div>
                   <h3 className="text-lg md:text-xl font-bold mb-5">
                     Review & Place Order
@@ -404,7 +517,9 @@ function CheckoutContent() {
                         </div>
                         <button
                           type="button"
-                          onClick={() => setCurrentStep(1)}
+                          onClick={() =>
+                            setCurrentStepIndex(steps.indexOf("address"))
+                          }
                           className="flex items-center gap-1 text-xs text-black/50 hover:text-black transition-colors"
                         >
                           <FiEdit2 className="text-xs" />
@@ -425,6 +540,44 @@ function CheckoutContent() {
                     </div>
                   )}
 
+                  {/* Gift recipient summary */}
+                  {giftItems.length > 0 && giftRecipientDisplayName && (
+                    <div className="border border-black/10 rounded-xl p-4 mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <FiGift className="text-black/60" />
+                          <span className="text-sm font-semibold">
+                            {scenario === "mixed"
+                              ? "Gift Details"
+                              : "Gift Details"}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCurrentStepIndex(steps.indexOf("gift-details"))
+                          }
+                          className="flex items-center gap-1 text-xs text-black/50 hover:text-black transition-colors"
+                        >
+                          <FiEdit2 className="text-xs" />
+                          Edit
+                        </button>
+                      </div>
+                      <p className="text-sm text-black/70">
+                        To: {giftRecipientDisplayName}
+                      </p>
+                      {giftMessage && (
+                        <p className="text-xs text-black/50 mt-1 italic">
+                          &ldquo;{giftMessage}&rdquo;
+                        </p>
+                      )}
+                      <div className="mt-2 bg-blue-50 text-blue-700 text-xs rounded-lg px-3 py-2">
+                        Recipient will provide their address when they accept
+                        the gift.
+                      </div>
+                    </div>
+                  )}
+
                   {/* Payment summary */}
                   {paymentType && (
                     <div className="border border-black/10 rounded-xl p-4 mb-4">
@@ -437,7 +590,9 @@ function CheckoutContent() {
                         </div>
                         <button
                           type="button"
-                          onClick={() => setCurrentStep(2)}
+                          onClick={() =>
+                            setCurrentStepIndex(steps.indexOf("payment"))
+                          }
                           className="flex items-center gap-1 text-xs text-black/50 hover:text-black transition-colors"
                         >
                           <FiEdit2 className="text-xs" />
@@ -451,44 +606,142 @@ function CheckoutContent() {
                   {/* Items summary */}
                   {cart && (
                     <div className="border border-black/10 rounded-xl p-4 mb-4">
-                      <span className="text-sm font-semibold block mb-3">
-                        Items ({cart.totalQuantities})
-                      </span>
-                      <div className="flex flex-col gap-3">
-                        {cart.items.map((item) => {
-                          const discounted = calcDiscountedPrice(
-                            item.price,
-                            item.discount
-                          );
-                          return (
-                            <div
-                              key={item.id}
-                              className="flex items-center gap-3"
-                            >
-                              <div className="bg-[#F0EEED] rounded-lg w-[48px] h-[48px] min-w-[48px] flex items-center justify-center overflow-hidden">
-                                <Image
-                                  src={item.srcUrl}
-                                  width={48}
-                                  height={48}
-                                  className="object-contain w-full h-full"
-                                  alt={item.name}
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-black truncate">
-                                  {item.name}
-                                </p>
-                                <p className="text-xs text-black/50">
-                                  Qty: {item.quantity}
-                                </p>
-                              </div>
-                              <span className="text-sm font-bold text-black whitespace-nowrap">
-                                {formatPrice(discounted * item.quantity)}
+                      {scenario === "mixed" ? (
+                        <>
+                          {/* Personal items */}
+                          {personalItems.length > 0 && (
+                            <div className="mb-4">
+                              <span className="text-xs font-semibold uppercase tracking-wide text-black/40 block mb-2">
+                                Personal Items
                               </span>
+                              <div className="flex flex-col gap-3">
+                                {personalItems.map((item) => {
+                                  const discounted = calcDiscountedPrice(
+                                    item.price,
+                                    item.discount,
+                                  );
+                                  return (
+                                    <div
+                                      key={item.id}
+                                      className="flex items-center gap-3"
+                                    >
+                                      <div className="bg-[#F0EEED] rounded-lg w-[48px] h-[48px] min-w-[48px] flex items-center justify-center overflow-hidden">
+                                        <Image
+                                          src={item.srcUrl}
+                                          width={48}
+                                          height={48}
+                                          className="object-contain w-full h-full"
+                                          alt={item.name}
+                                        />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-black truncate">
+                                          {item.name}
+                                        </p>
+                                        <p className="text-xs text-black/50">
+                                          Qty: {item.quantity}
+                                        </p>
+                                      </div>
+                                      <span className="text-sm font-bold text-black whitespace-nowrap">
+                                        {formatPrice(
+                                          discounted * item.quantity,
+                                        )}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             </div>
-                          );
-                        })}
-                      </div>
+                          )}
+                          <hr className="border-t-black/10 mb-4" />
+                          {/* Gift items */}
+                          {giftItems.length > 0 && (
+                            <div>
+                              <span className="text-xs font-semibold uppercase tracking-wide text-black/40 block mb-2">
+                                Gift Items
+                              </span>
+                              <div className="flex flex-col gap-3">
+                                {giftItems.map((item) => {
+                                  const discounted = calcDiscountedPrice(
+                                    item.price,
+                                    item.discount,
+                                  );
+                                  return (
+                                    <div
+                                      key={item.id}
+                                      className="flex items-center gap-3"
+                                    >
+                                      <div className="bg-[#F0EEED] rounded-lg w-[48px] h-[48px] min-w-[48px] flex items-center justify-center overflow-hidden">
+                                        <Image
+                                          src={item.srcUrl}
+                                          width={48}
+                                          height={48}
+                                          className="object-contain w-full h-full"
+                                          alt={item.name}
+                                        />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-black truncate">
+                                          {item.name}
+                                        </p>
+                                        <p className="text-xs text-black/50">
+                                          Qty: {item.quantity}
+                                        </p>
+                                      </div>
+                                      <span className="text-sm font-bold text-black whitespace-nowrap">
+                                        {formatPrice(
+                                          discounted * item.quantity,
+                                        )}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-sm font-semibold block mb-3">
+                            Items ({cart.totalQuantities})
+                          </span>
+                          <div className="flex flex-col gap-3">
+                            {cart.items.map((item) => {
+                              const discounted = calcDiscountedPrice(
+                                item.price,
+                                item.discount,
+                              );
+                              return (
+                                <div
+                                  key={item.id}
+                                  className="flex items-center gap-3"
+                                >
+                                  <div className="bg-[#F0EEED] rounded-lg w-[48px] h-[48px] min-w-[48px] flex items-center justify-center overflow-hidden">
+                                    <Image
+                                      src={item.srcUrl}
+                                      width={48}
+                                      height={48}
+                                      className="object-contain w-full h-full"
+                                      alt={item.name}
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-black truncate">
+                                      {item.name}
+                                    </p>
+                                    <p className="text-xs text-black/50">
+                                      Qty: {item.quantity}
+                                    </p>
+                                  </div>
+                                  <span className="text-sm font-bold text-black whitespace-nowrap">
+                                    {formatPrice(discounted * item.quantity)}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
                     </div>
                   )}
 
@@ -504,7 +757,7 @@ function CheckoutContent() {
                   <div className="flex space-x-3 mt-4">
                     <button
                       type="button"
-                      onClick={() => setCurrentStep(2)}
+                      onClick={() => setCurrentStepIndex((i) => i - 1)}
                       disabled={placing}
                       className="flex-1 border border-black/10 text-black rounded-full py-3.5 px-4 font-medium hover:bg-black/5 transition-colors disabled:opacity-50"
                     >
