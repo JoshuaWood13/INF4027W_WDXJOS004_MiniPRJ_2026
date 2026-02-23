@@ -6,14 +6,14 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 const calcAdjustedTotalPrice = (
   totalPrice: number,
   data: CartItem,
-  quantity?: number
+  quantity?: number,
 ): number => {
   return (
     (totalPrice + data.discount.percentage > 0
       ? Math.round(data.price - (data.price * data.discount.percentage) / 100)
       : data.discount.amount > 0
-      ? Math.round(data.price - data.discount.amount)
-      : data.price) * (quantity ? quantity : data.quantity)
+        ? Math.round(data.price - data.discount.amount)
+        : data.price) * (quantity ? quantity : data.quantity)
   );
 };
 
@@ -27,9 +27,10 @@ export type CartItem = {
   name: string;
   srcUrl: string;
   price: number;
-  attributes: string[]; // e.g. ["Intel i7-13700H", "16GB RAM", "512GB SSD"]
+  attributes: string[]; 
   discount: Discount;
   quantity: number;
+  itemType?: "personal" | "gift"; // default: "personal"
 };
 
 export type Cart = {
@@ -58,25 +59,29 @@ export const cartsSlice = createSlice({
   initialState,
   reducers: {
     addToCart: (state, action: PayloadAction<CartItem>) => {
+      // Ensure itemType defaults to "personal"
+      const payload: CartItem = {
+        ...action.payload,
+        itemType: action.payload.itemType ?? "personal",
+      };
       // if cart is empty then add
       if (state.cart === null) {
         state.cart = {
-          items: [action.payload],
-          totalQuantities: action.payload.quantity,
+          items: [payload],
+          totalQuantities: payload.quantity,
         };
-        state.totalPrice =
-          state.totalPrice + action.payload.price * action.payload.quantity;
+        state.totalPrice = state.totalPrice + payload.price * payload.quantity;
         state.adjustedTotalPrice =
           state.adjustedTotalPrice +
-          calcAdjustedTotalPrice(state.totalPrice, action.payload);
+          calcAdjustedTotalPrice(state.totalPrice, payload);
         return;
       }
 
-      // check item in cart (match by id since laptops don't have variants)
+      // check item in cart 
       const isItemInCart = state.cart.items.find(
         (item) =>
-          action.payload.id === item.id &&
-          compareArrays(action.payload.attributes, item.attributes)
+          payload.id === item.id &&
+          compareArrays(payload.attributes, item.attributes),
       );
 
       if (isItemInCart) {
@@ -84,40 +89,38 @@ export const cartsSlice = createSlice({
           ...state.cart,
           items: state.cart.items.map((eachCartItem) => {
             if (
-              eachCartItem.id === action.payload.id
+              eachCartItem.id === payload.id
                 ? !compareArrays(
                     eachCartItem.attributes,
-                    isItemInCart.attributes
+                    isItemInCart.attributes,
                   )
-                : eachCartItem.id !== action.payload.id
+                : eachCartItem.id !== payload.id
             )
               return eachCartItem;
 
             return {
               ...isItemInCart,
-              quantity: action.payload.quantity + isItemInCart.quantity,
+              quantity: payload.quantity + isItemInCart.quantity,
             };
           }),
-          totalQuantities: state.cart.totalQuantities + action.payload.quantity,
+          totalQuantities: state.cart.totalQuantities + payload.quantity,
         };
-        state.totalPrice =
-          state.totalPrice + action.payload.price * action.payload.quantity;
+        state.totalPrice = state.totalPrice + payload.price * payload.quantity;
         state.adjustedTotalPrice =
           state.adjustedTotalPrice +
-          calcAdjustedTotalPrice(state.totalPrice, action.payload);
+          calcAdjustedTotalPrice(state.totalPrice, payload);
         return;
       }
 
       state.cart = {
         ...state.cart,
-        items: [...state.cart.items, action.payload],
-        totalQuantities: state.cart.totalQuantities + action.payload.quantity,
+        items: [...state.cart.items, payload],
+        totalQuantities: state.cart.totalQuantities + payload.quantity,
       };
-      state.totalPrice =
-        state.totalPrice + action.payload.price * action.payload.quantity;
+      state.totalPrice = state.totalPrice + payload.price * payload.quantity;
       state.adjustedTotalPrice =
         state.adjustedTotalPrice +
-        calcAdjustedTotalPrice(state.totalPrice, action.payload);
+        calcAdjustedTotalPrice(state.totalPrice, payload);
     },
     removeCartItem: (state, action: PayloadAction<RemoveCartItem>) => {
       if (state.cart === null) return;
@@ -125,7 +128,7 @@ export const cartsSlice = createSlice({
       const isItemInCart = state.cart.items.find(
         (item) =>
           action.payload.id === item.id &&
-          compareArrays(action.payload.attributes, item.attributes)
+          compareArrays(action.payload.attributes, item.attributes),
       );
 
       if (isItemInCart) {
@@ -137,7 +140,7 @@ export const cartsSlice = createSlice({
                 eachCartItem.id === action.payload.id
                   ? !compareArrays(
                       eachCartItem.attributes,
-                      isItemInCart.attributes
+                      isItemInCart.attributes,
                     )
                   : eachCartItem.id !== action.payload.id
               )
@@ -160,14 +163,14 @@ export const cartsSlice = createSlice({
     },
     remove: (
       state,
-      action: PayloadAction<RemoveCartItem & { quantity: number }>
+      action: PayloadAction<RemoveCartItem & { quantity: number }>,
     ) => {
       if (!state.cart) return;
 
       const isItemInCart = state.cart.items.find(
         (item) =>
           action.payload.id === item.id &&
-          compareArrays(action.payload.attributes, item.attributes)
+          compareArrays(action.payload.attributes, item.attributes),
       );
 
       if (!isItemInCart) return;
@@ -188,7 +191,7 @@ export const cartsSlice = createSlice({
         calcAdjustedTotalPrice(
           isItemInCart.price,
           isItemInCart,
-          isItemInCart.quantity
+          isItemInCart.quantity,
         );
     },
     /** Clear the entire cart (used after checkout or manual clear) */
@@ -198,9 +201,31 @@ export const cartsSlice = createSlice({
       state.adjustedTotalPrice = 0;
       state.action = null;
     },
+    /** Update the itemType of a specific cart item in-place */
+    setCartItemType: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        attributes: string[];
+        itemType: "personal" | "gift";
+      }>,
+    ) => {
+      if (!state.cart) return;
+      const item = state.cart.items.find(
+        (i) =>
+          i.id === action.payload.id &&
+          compareArrays(i.attributes, action.payload.attributes),
+      );
+      if (item) {
+        item.itemType = action.payload.itemType;
+      }
+    },
     /** Merge items from Firestore into the current cart (used on login) */
     mergeCartItems: (state, action: PayloadAction<CartItem[]>) => {
-      const incomingItems = action.payload;
+      const incomingItems = action.payload.map((item) => ({
+        ...item,
+        itemType: item.itemType ?? "personal",
+      }));
       if (incomingItems.length === 0) return;
 
       // If cart is empty, set it directly
@@ -224,7 +249,7 @@ export const cartsSlice = createSlice({
       // Merge: only add items not already present (by product id)
       for (const incoming of incomingItems) {
         const existsLocally = state.cart.items.find(
-          (item) => item.id === incoming.id
+          (item) => item.id === incoming.id,
         );
 
         if (!existsLocally) {
@@ -238,7 +263,13 @@ export const cartsSlice = createSlice({
   },
 });
 
-export const { addToCart, removeCartItem, remove, clearCart, mergeCartItems } =
-  cartsSlice.actions;
+export const {
+  addToCart,
+  removeCartItem,
+  remove,
+  clearCart,
+  mergeCartItems,
+  setCartItemType,
+} = cartsSlice.actions;
 
 export default cartsSlice.reducer;

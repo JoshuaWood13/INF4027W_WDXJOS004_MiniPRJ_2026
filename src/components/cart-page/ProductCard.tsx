@@ -11,9 +11,14 @@ import {
   CartItem,
   remove,
   removeCartItem,
+  setCartItemType,
 } from "@/lib/features/carts/cartsSlice";
 import { useAppDispatch } from "@/lib/hooks/redux";
-import { formatPrice, calcDiscountedPrice, calcDiscountPercentage } from "@/lib/utils";
+import {
+  formatPrice,
+  calcDiscountedPrice,
+  calcDiscountPercentage,
+} from "@/lib/utils";
 
 type ProductCardProps = {
   data: CartItem;
@@ -58,7 +63,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
                   id: data.id,
                   attributes: data.attributes,
                   quantity: data.quantity,
-                })
+                }),
               )
             }
           >
@@ -66,10 +71,29 @@ const ProductCard = ({ data }: ProductCardProps) => {
           </Button>
         </div>
         {/* Show specs summary instead of size/color */}
-        <div className="-mt-1 mb-auto">
+        <div className="-mt-1 mb-1">
           <span className="text-black/60 text-xs md:text-sm">
             {data.attributes.join(" | ")}
           </span>
+        </div>
+        {/* Personal / Gift dropdown */}
+        <div className="mb-auto">
+          <select
+            value={data.itemType ?? "personal"}
+            onChange={(e) =>
+              dispatch(
+                setCartItemType({
+                  id: data.id,
+                  attributes: data.attributes,
+                  itemType: e.target.value as "personal" | "gift",
+                }),
+              )
+            }
+            className="text-xs text-black/70 border border-black/15 rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-black/20 cursor-pointer"
+          >
+            <option value="personal">Personal</option>
+            <option value="gift">Gift</option>
+          </select>
         </div>
         <div className="flex items-center flex-wrap justify-between">
           <div className="flex items-center space-x-[5px] xl:space-x-2.5">
@@ -97,10 +121,13 @@ const ProductCard = ({ data }: ProductCardProps) => {
                       id: data.id,
                       attributes: data.attributes,
                       quantity: data.quantity,
-                    })
+                    }),
                   )
                 : dispatch(
-                    removeCartItem({ id: data.id, attributes: data.attributes })
+                    removeCartItem({
+                      id: data.id,
+                      attributes: data.attributes,
+                    }),
                   )
             }
             isZeroDelete
