@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { useAppDispatch } from "@/lib/hooks/redux";
 import { clearCart } from "@/lib/features/carts/cartsSlice";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { useActivityCount } from "@/lib/hooks/useActivityCount";
 import {
   FiUser,
   FiMapPin,
@@ -19,7 +20,7 @@ import {
 } from "react-icons/fi";
 
 const NAV_ITEMS = [
-  { href: "/account", label: "Personal Details", icon: FiUser },
+  { href: "/account", label: "Account", icon: FiUser },
   { href: "/account/addresses", label: "Addresses", icon: FiMapPin },
   { href: "/account/wishlist", label: "Wishlist", icon: FiHeart },
   { href: "/account/orders", label: "Orders", icon: FiPackage },
@@ -31,6 +32,7 @@ function AccountShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { appUser, signOut } = useAuth();
+  const { count } = useActivityCount();
 
   async function handleSignOut() {
     router.push("/");
@@ -79,6 +81,18 @@ function AccountShell({ children }: { children: React.ReactNode }) {
                   >
                     <item.icon className="text-base" />
                     {item.label}
+                    {item.href === "/account" && count > 0 && (
+                      <span
+                        className={cn(
+                          "text-xs rounded-full px-1.5 py-0.5 leading-none font-bold",
+                          active
+                            ? "bg-white text-black"
+                            : "bg-black text-white",
+                        )}
+                      >
+                        {count}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -114,6 +128,11 @@ function AccountShell({ children }: { children: React.ReactNode }) {
                       )}
                     />
                     {item.label}
+                    {item.href === "/account" && count > 0 && (
+                      <span className="ml-auto bg-black text-white text-xs rounded-full px-1.5 py-0.5 leading-none">
+                        {count}
+                      </span>
+                    )}
                   </Link>
                 );
               })}

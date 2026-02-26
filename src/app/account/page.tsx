@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { updateUser } from "@/lib/firestore/users";
 import { FiCheck } from "react-icons/fi";
+import ActivitySection from "@/components/account/ActivitySection";
 
 export default function PersonalDetailsPage() {
   const { appUser, firebaseUser, refreshAppUser } = useAuth();
@@ -64,6 +65,9 @@ export default function PersonalDetailsPage() {
 
   return (
     <div>
+      {/* Activity feed */}
+      {appUser && firebaseUser && <ActivitySection />}
+
       <h3 className="text-xl md:text-2xl font-bold mb-6">Personal Details</h3>
 
       <form onSubmit={handleSave}>

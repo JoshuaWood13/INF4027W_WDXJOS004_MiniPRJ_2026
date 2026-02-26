@@ -15,6 +15,7 @@ import {
 import { db } from "@/lib/firebase";
 import {
   AppUser,
+  AutoBuyMessage,
   IncomingRequest,
   OutgoingRequest,
   PriceWatcher,
@@ -33,6 +34,10 @@ function docToUser(docSnap: any): AppUser {
     addresses: data.addresses ?? [],
     wishlist: data.wishlist ?? [],
     priceWatchers: data.priceWatchers ?? [],
+    autoBuyMessages: (data.autoBuyMessages ?? []).map((m: any) => ({
+      ...m,
+      createdAt: m.createdAt?.toDate?.() ?? new Date(),
+    })),
     friendCode: data.friendCode ?? "",
     friends: data.friends ?? [],
     incomingRequests: (data.incomingRequests ?? []).map((r: any) => ({
@@ -73,6 +78,7 @@ export async function createUser(data: {
     role: data.role ?? "customer",
     wishlist: [],
     priceWatchers: [],
+    autoBuyMessages: [],
     friendCode: data.friendCode ?? "",
     friends: [],
     incomingRequests: [],
@@ -306,7 +312,7 @@ export async function removePriceWatcher(
   await updateDoc(docRef, { priceWatchers: arrayRemove(watcher) });
 }
 
-/** Update a price watchers target price */
+/** Update a price watcher's target price while preserving address and paymentType */
 export async function updatePriceWatcher(
   uid: string,
   oldWatcher: PriceWatcher,
@@ -315,10 +321,7 @@ export async function updatePriceWatcher(
   const docRef = doc(db, COLLECTION, uid);
   await updateDoc(docRef, { priceWatchers: arrayRemove(oldWatcher) });
   await updateDoc(docRef, {
-    priceWatchers: arrayUnion({
-      productId: oldWatcher.productId,
-      targetPrice: newTargetPrice,
-    }),
+    priceWatchers: arrayUnion({ ...oldWatcher, targetPrice: newTargetPrice }),
   });
 }
 
@@ -378,4 +381,41 @@ export async function deleteUserAddress(
   if (!user) throw new Error("User not found");
   const addresses = user.addresses.filter((a) => a.id !== addressId);
   await updateDoc(doc(db, COLLECTION, uid), { addresses });
+}
+
+// Auto-Buy Messages
+
+/** Append a new auto-buy activity message to the user's doc */
+export async function addAutoBuyMessage(
+  uid: string,
+  msg: Omit<AutoBuyMessage, "createdAt"> & {
+    createdAt: ReturnType<typeof Timestamp.now>;
+  },
+): Promise<void> {
+  const docRef = doc(db, COLLECTION, uid);
+  await updateDoc(docRef, { autoBuyMessages: arrayUnion(msg) });
+}
+
+/** Permanently remove a single auto-buy message from the user's array by ID */
+export async function removeAutoBuyMessage(
+  uid: string,
+  msgId: string,
+): Promise<void> {
+  const docRef = doc(db, COLLECTION, uid);
+  const docSnap = await getDoc(docRef);
+  if (!docSnap.exists()) return;
+  const messages: any[] = docSnap.data().autoBuyMessages ?? [];
+  const updated = messages.filter((m) => m.id !== msgId);
+  await updateDoc(docRef, { autoBuyMessages: updated });
+}
+
+/** Get all users that have an active price watcher for a given product */
+export async function getUsersWithProductWatcher(
+  productId: string,
+): Promise<AppUser[]> {
+  const snapshot = await getDocs(collection(db, COLLECTION));
+  const all = snapshot.docs.map(docToUser);
+  return all.filter((u) =>
+    u.priceWatchers.some((w) => w.productId === productId),
+  );
 }

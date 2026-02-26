@@ -110,10 +110,33 @@ export default function AdminProducts() {
 
   async function handleSaveProduct(data: ProductFormData) {
     if (editingProduct) {
-      // Update existing
+      // Update existing product
       await updateProduct(editingProduct.id, data);
+
+      // Only trigger watchers if price or discount actually changed
+      const priceChanged = data.price !== editingProduct.price;
+      const discountChanged =
+        data.discount.percentage !== editingProduct.discount.percentage ||
+        data.discount.amount !== editingProduct.discount.amount;
+
+      if (priceChanged || discountChanged) {
+        try {
+          await fetch("/api/trigger-watchers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              productId: editingProduct.id,
+              productName: data.name,
+              newPrice: data.price,
+              newDiscount: data.discount,
+            }),
+          });
+        } catch (e) {
+          console.error("Watcher trigger failed:", e);
+        }
+      }
     } else {
-      // Create new
+      // Create new product
       await createProduct({
         ...data,
         rating: 4.5, //placeholder
