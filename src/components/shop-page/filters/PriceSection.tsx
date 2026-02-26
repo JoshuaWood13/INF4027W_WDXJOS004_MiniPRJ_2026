@@ -18,8 +18,14 @@ const PriceSection = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const initialMin = Number(searchParams.get("minPrice")) || 5000;
-  const initialMax = Number(searchParams.get("maxPrice")) || 50000;
+  const isPriceFiltered =
+    searchParams.has("minPrice") || searchParams.has("maxPrice");
+  const initialMin = isPriceFiltered
+    ? Number(searchParams.get("minPrice")) || MIN_PRICE
+    : MIN_PRICE;
+  const initialMax = isPriceFiltered
+    ? Number(searchParams.get("maxPrice")) || MAX_PRICE
+    : MAX_PRICE;
 
   const [priceRange, setPriceRange] = useState<number[]>([
     initialMin,
@@ -38,16 +44,50 @@ const PriceSection = () => {
     } else {
       params.delete("maxPrice");
     }
-    router.push(`/shop?${params.toString()}`);
+    router.push(`/shop?${params.toString()}`, { scroll: false });
   }, [priceRange, searchParams, router]);
+
+  const handleClear = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("minPrice");
+    params.delete("maxPrice");
+    setPriceRange([MIN_PRICE, MAX_PRICE]);
+    router.push(`/shop?${params.toString()}`, { scroll: false });
+  }, [searchParams, router]);
 
   return (
     <Accordion type="single" collapsible defaultValue="filter-price">
       <AccordionItem value="filter-price" className="border-none">
         <AccordionTrigger className="text-black font-bold text-xl hover:no-underline p-0 py-0.5">
-          Price
+          <span className="flex-1 flex items-center gap-2">
+            Price
+            {isPriceFiltered && (
+              <span className="w-2 h-2 rounded-full bg-black" />
+            )}
+            {isPriceFiltered && (
+              <span
+                role="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  handleClear();
+                }}
+                className="ml-auto mr-2 text-xs font-normal text-black/40 hover:text-black underline"
+              >
+                Clear
+              </span>
+            )}
+          </span>
         </AccordionTrigger>
         <AccordionContent className="pt-4" contentClassName="overflow-visible">
+          {isPriceFiltered && (
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs text-black/60">
+                R{initialMin.toLocaleString("en-ZA")} – R
+                {initialMax.toLocaleString("en-ZA")}
+              </span>
+            </div>
+          )}
           <Slider
             value={priceRange}
             onValueChange={setPriceRange}

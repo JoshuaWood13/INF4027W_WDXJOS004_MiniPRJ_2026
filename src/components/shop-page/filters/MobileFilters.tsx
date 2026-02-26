@@ -1,11 +1,8 @@
 import React from "react";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
@@ -25,14 +22,8 @@ const MobileFilters = () => {
           </button>
         </DrawerTrigger>
         <DrawerContent className="max-h-[90%]">
-          <DrawerHeader>
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-black text-xl">Filters</span>
-              <FiSliders className="text-2xl text-black/40" />
-            </div>
-            <DrawerTitle className="hidden">filters</DrawerTitle>
-            <DrawerDescription className="hidden">filters</DrawerDescription>
-          </DrawerHeader>
+          <DrawerTitle className="hidden">filters</DrawerTitle>
+          <DrawerDescription className="hidden">filters</DrawerDescription>
           <div className="max-h-[90%] overflow-y-auto w-full px-5 md:px-6 py-5 space-y-5 md:space-y-6">
             <Filters />
           </div>

@@ -25,7 +25,7 @@ const ShopSortSelect = ({ currentSort }: ShopSortSelectProps) => {
     } else {
       params.set("sort", value);
     }
-    router.push(`/shop?${params.toString()}`);
+    router.push(`/shop?${params.toString()}`, { scroll: false });
   };
 
   return (
