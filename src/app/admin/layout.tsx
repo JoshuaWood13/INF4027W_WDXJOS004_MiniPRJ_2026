@@ -10,7 +10,6 @@ import { useAppDispatch } from "@/lib/hooks/redux";
 import { clearCart } from "@/lib/features/carts/cartsSlice";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import {
-  FiHome,
   FiPackage,
   FiShoppingBag,
   FiBarChart2,
@@ -18,7 +17,6 @@ import {
 } from "react-icons/fi";
 
 const NAV_ITEMS = [
-  { href: "/admin", label: "Dashboard", icon: FiHome },
   { href: "/admin/products", label: "Manage Products", icon: FiPackage },
   { href: "/admin/orders", label: "Manage Orders", icon: FiShoppingBag },
   { href: "/admin/reports", label: "Reports", icon: FiBarChart2 },
@@ -37,7 +35,6 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   function isActive(href: string) {
-    if (href === "/admin") return pathname === "/admin";
     return pathname.startsWith(href);
   }
 
