@@ -17,7 +17,10 @@ import AddressManager from "@/components/address/AddressManager";
 import { SavedAddress } from "@/types/user.types";
 import { PaymentType } from "@/types/order.types";
 import { createOrder } from "@/lib/firestore/orders";
-import { incrementSalesCount, getProductsByIds } from "@/lib/firestore/products";
+import {
+  incrementSalesCount,
+  getProductsByIds,
+} from "@/lib/firestore/products";
 import { saveUserCart, getFriendProfiles } from "@/lib/firestore/users";
 import GiftDetailsStep from "@/components/checkout/GiftDetailsStep";
 import {
@@ -362,6 +365,17 @@ function CheckoutContent() {
 
   if (!placing && (!cart || cart.items.length === 0)) {
     return null;
+  }
+
+  if (placing) {
+    return (
+      <main className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+        <div className="w-12 h-12 rounded-full border-4 border-black/10 border-t-black animate-spin" />
+        <p className="text-base font-medium text-black/60">
+          Placing your order…
+        </p>
+      </main>
+    );
   }
 
   return (

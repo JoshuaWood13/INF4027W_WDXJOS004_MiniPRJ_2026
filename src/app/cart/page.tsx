@@ -3,11 +3,9 @@
 import BreadcrumbCart from "@/components/cart-page/BreadcrumbCart";
 import ProductCard from "@/components/cart-page/ProductCard";
 import { Button } from "@/components/ui/button";
-import InputGroup from "@/components/ui/input-group";
 import { cn, formatPrice } from "@/lib/utils";
 import { integralCF } from "@/styles/fonts";
 import { FaArrowRight } from "react-icons/fa6";
-import { MdOutlineLocalOffer } from "react-icons/md";
 import { TbBasketExclamation } from "react-icons/tb";
 import React from "react";
 import { RootState } from "@/lib/store";
@@ -83,25 +81,6 @@ export default function CartPage() {
                       {formatPrice(Math.round(adjustedTotalPrice))}
                     </span>
                   </div>
-                </div>
-                <div className="flex space-x-3">
-                  <InputGroup className="bg-[#F0F0F0]">
-                    <InputGroup.Text>
-                      <MdOutlineLocalOffer className="text-black/40 text-2xl" />
-                    </InputGroup.Text>
-                    <InputGroup.Input
-                      type="text"
-                      name="code"
-                      placeholder="Add promo code"
-                      className="bg-transparent placeholder:text-black/40"
-                    />
-                  </InputGroup>
-                  <Button
-                    type="button"
-                    className="bg-black rounded-full w-full max-w-[119px] h-[48px]"
-                  >
-                    Apply
-                  </Button>
                 </div>
                 <Button
                   type="button"
