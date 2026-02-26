@@ -6,10 +6,12 @@ import TopNavbar from "@/components/layout/Navbar/TopNavbar";
 import Footer from "@/components/layout/Footer";
 import HolyLoader from "holy-loader";
 import Providers from "./providers";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "LaptopWRLD",
-  description: "Your destination for laptops — browse, compare, and buy the best laptops in South Africa.",
+  description:
+    "Your destination for laptops — browse, compare, and buy the best laptops in South Africa.",
 };
 
 export const viewport: Viewport = {
@@ -30,6 +32,7 @@ export default function RootLayout({
           <TopNavbar />
           {children}
         </Providers>
+        <Toaster position="bottom-center" richColors />
         <Footer />
       </body>
     </html>

@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { updateUser } from "@/lib/firestore/users";
 import { FiCheck } from "react-icons/fi";
 import ActivitySection from "@/components/account/ActivitySection";
+import { showSuccessToast } from "@/components/ui/SuccessToast";
 
 export default function PersonalDetailsPage() {
   const { appUser, firebaseUser, refreshAppUser } = useAuth();
@@ -15,7 +16,7 @@ export default function PersonalDetailsPage() {
   // UI state
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  // const [success, setSuccess] = useState(false);
 
   // Initialise form from appUser
   useEffect(() => {
@@ -32,7 +33,6 @@ export default function PersonalDetailsPage() {
     if (!appUser) return;
 
     setError("");
-    setSuccess(false);
 
     const trimmedName = displayName.trim();
     if (!trimmedName) {
@@ -44,9 +44,8 @@ export default function PersonalDetailsPage() {
     try {
       await updateUser(appUser.uid, { displayName: trimmedName });
       await refreshAppUser();
-      setSuccess(true);
-      // Auto-hide success message after 3s
-      setTimeout(() => setSuccess(false), 3000);
+      showSuccessToast("Profile updated successfully!");
+
     } catch (err: any) {
       setError(err?.message || "Failed to update profile. Please try again.");
     } finally {
@@ -76,14 +75,6 @@ export default function PersonalDetailsPage() {
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 mb-5">
               {error}
-            </div>
-          )}
-
-          {/* Success */}
-          {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 text-sm rounded-xl px-4 py-3 mb-5 flex items-center gap-2">
-              <FiCheck className="text-green-600" />
-              Profile updated successfully.
             </div>
           )}
 

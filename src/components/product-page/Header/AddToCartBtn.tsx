@@ -5,6 +5,7 @@ import { useAppDispatch } from "@/lib/hooks/redux";
 import { Product } from "@/types/product.types";
 import { PLACEHOLDER_IMAGE } from "@/lib/utils";
 import React from "react";
+import { showSuccessToast } from "@/components/ui/SuccessToast";
 
 const AddToCartBtn = ({
   data,
@@ -26,7 +27,7 @@ const AddToCartBtn = ({
     <button
       type="button"
       className={`bg-black ${isLoggedIn ? "flex-1" : "w-full"} ml-3 sm:ml-5 rounded-full h-11 md:h-[52px] text-sm sm:text-base text-white hover:bg-black/80 transition-all`}
-      onClick={() =>
+      onClick={() => {
         dispatch(
           addToCart({
             id: data.id,
@@ -37,8 +38,9 @@ const AddToCartBtn = ({
             discount: data.discount,
             quantity: data.quantity,
           }),
-        )
-      }
+        );
+        showSuccessToast("Added to cart!");
+      }}
     >
       Add to Cart
     </button>

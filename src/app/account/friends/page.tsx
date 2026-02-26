@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { showSuccessToast } from "@/components/ui/SuccessToast";
 
 export default function FriendsPage() {
   const { appUser, firebaseUser, refreshAppUser } = useAuth();
@@ -37,7 +38,6 @@ export default function FriendsPage() {
   const [codeCopied, setCodeCopied] = useState(false);
   const [requestInput, setRequestInput] = useState("");
   const [requestError, setRequestError] = useState<string | null>(null);
-  const [requestSuccess, setRequestSuccess] = useState<string | null>(null);
   const [sendingRequest, setSendingRequest] = useState(false);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [generatingCode, setGeneratingCode] = useState(false);
@@ -87,7 +87,6 @@ export default function FriendsPage() {
 
     setSendingRequest(true);
     setRequestError(null);
-    setRequestSuccess(null);
 
     const error = await sendFriendRequest(
       firebaseUser.uid,
@@ -100,9 +99,9 @@ export default function FriendsPage() {
     if (error) {
       setRequestError(error);
     } else {
-      setRequestSuccess("Friend request sent!");
       setRequestInput("");
       await refreshAppUser();
+      showSuccessToast("Friend request sent!");
     }
     setSendingRequest(false);
   }
@@ -116,6 +115,7 @@ export default function FriendsPage() {
     ]);
     await refreshAppUser();
     setFriendProfiles((prev) => prev.filter((f) => f.uid !== friendUid));
+    showSuccessToast("Friend removed!");
     // Close wishlist view if viewing this friend
     if (viewingFriend?.uid === friendUid) setViewingFriend(null);
   }
@@ -154,7 +154,6 @@ export default function FriendsPage() {
                   onChange={(e) => {
                     setRequestInput(e.target.value);
                     setRequestError(null);
-                    setRequestSuccess(null);
                   }}
                   onKeyDown={(e) => e.key === "Enter" && handleSendRequest()}
                   placeholder="Enter friend code (e.g. aB3xZ7qR)"
@@ -170,9 +169,6 @@ export default function FriendsPage() {
               </div>
               {requestError && (
                 <p className="text-xs text-red-500 mt-2">{requestError}</p>
-              )}
-              {requestSuccess && (
-                <p className="text-xs text-green-600 mt-2">{requestSuccess}</p>
               )}
             </div>
 

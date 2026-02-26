@@ -13,6 +13,7 @@ import Link from "next/link";
 import { FiTrash2, FiEye, FiX } from "react-icons/fi";
 import { formatPrice, calcDiscountedPrice, calcDiscountPercentage, PLACEHOLDER_IMAGE } from "@/lib/utils";
 import WatcherModal from "@/components/wishlist/WatcherModal";
+import { showSuccessToast } from "@/components/ui/SuccessToast";
 
 export default function WishlistPage() {
   const { appUser, firebaseUser, refreshAppUser } = useAuth();
@@ -51,6 +52,7 @@ export default function WishlistPage() {
     try {
       await removeFromWishlist(firebaseUser.uid, productId);
       await refreshAppUser();
+      showSuccessToast("Removed from wishlist!");
       // Remove from local state
       setProducts((prev) => prev.filter((p) => p.id !== productId));
     } catch (error) {
@@ -66,6 +68,7 @@ export default function WishlistPage() {
     try {
       await removePriceWatcher(firebaseUser.uid, watcher);
       await refreshAppUser();
+      showSuccessToast("Price watcher removed!");
     } catch (error) {
       console.error("Failed to remove watcher:", error);
     } finally {
@@ -91,6 +94,7 @@ export default function WishlistPage() {
         quantity: 1,
       }),
     );
+    showSuccessToast("Added to cart!");
   }
 
   const modalProduct = watcherModalProductId

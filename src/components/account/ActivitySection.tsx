@@ -22,6 +22,7 @@ import Image from "next/image";
 import { FiCheck, FiShoppingBag, FiUserPlus } from "react-icons/fi";
 import Link from "next/link";
 import { formatPrice, PLACEHOLDER_IMAGE, cn } from "@/lib/utils";
+import { showSuccessToast } from "../ui/SuccessToast";
 
 export default function ActivitySection() {
   const { appUser, firebaseUser, refreshAppUser } = useAuth();
@@ -71,6 +72,7 @@ export default function ActivitySection() {
     if (!firebaseUser) return;
     await acceptFriendRequest(firebaseUser.uid, fromUid);
     await refreshAppUser();
+    showSuccessToast("Friend request accepted!");
   }
 
   // Decline freind request
@@ -78,6 +80,7 @@ export default function ActivitySection() {
     if (!firebaseUser) return;
     await declineFriendRequest(firebaseUser.uid, fromUid);
     await refreshAppUser();
+    showSuccessToast("Friend request declined!");
   }
 
   // Open gift acceptance modal
@@ -100,6 +103,7 @@ export default function ActivitySection() {
       setAcceptingGift(null);
     } finally {
       setAccepting(false);
+      showSuccessToast("Gift accepted!");
     }
   }
 
@@ -107,6 +111,7 @@ export default function ActivitySection() {
   async function handleDeclineGift(orderId: string) {
     await updateOrderStatus(orderId, "refunded");
     setPendingGifts((prev) => prev.filter((o) => o.id !== orderId));
+    showSuccessToast("Gift declined!");
   }
 
   // Format relative time for auto-buy messages

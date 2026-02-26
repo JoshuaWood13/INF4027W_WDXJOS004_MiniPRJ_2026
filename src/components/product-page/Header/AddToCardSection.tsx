@@ -7,6 +7,7 @@ import { Product } from "@/types/product.types";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { addToWishlist, removeFromWishlist } from "@/lib/firestore/users";
 import { FiHeart } from "react-icons/fi";
+import { showSuccessToast } from "@/components/ui/SuccessToast";
 
 const AddToCardSection = ({ data }: { data: Product }) => {
   const [quantity, setQuantity] = useState<number>(1);
@@ -31,8 +32,10 @@ const AddToCardSection = ({ data }: { data: Product }) => {
     try {
       if (newWishlistedState) {
         await addToWishlist(firebaseUser.uid, data.id);
+        showSuccessToast("Added to wishlist!");
       } else {
         await removeFromWishlist(firebaseUser.uid, data.id);
+        showSuccessToast("Removed from wishlist");
       }
       refreshAppUser().catch(console.error);
     } catch (error) {

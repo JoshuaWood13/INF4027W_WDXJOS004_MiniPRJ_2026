@@ -11,6 +11,7 @@ import {
 import AddressCard from "./AddressCard";
 import AddressForm from "./AddressForm";
 import { FiPlus } from "react-icons/fi";
+import { showSuccessToast } from "@/components/ui/SuccessToast";
 
 const MAX_ADDRESSES = 3;
 
@@ -47,6 +48,7 @@ export default function AddressManager({
     try {
       await addUserAddress(appUser.uid, address);
       await refreshAppUser();
+      showSuccessToast("Address added!");
       // auto select newly created address
       onSelect?.(address);
       setView("cards");
@@ -62,6 +64,7 @@ export default function AddressManager({
     try {
       await updateUserAddress(appUser.uid, address);
       await refreshAppUser();
+      showSuccessToast("Address updated!");
       // If edited address was selected, update the selection
       if (selectedId === address.id) {
         onSelect?.(address);
@@ -80,6 +83,7 @@ export default function AddressManager({
     try {
       await deleteUserAddress(appUser.uid, addressId);
       await refreshAppUser();
+      showSuccessToast("Address deleted!");
 
       // If deleted address was selected, select another or null
       if (selectedId === addressId) {
