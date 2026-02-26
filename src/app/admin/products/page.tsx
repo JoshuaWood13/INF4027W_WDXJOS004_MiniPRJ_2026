@@ -30,6 +30,17 @@ import { Button } from "@/components/ui/button";
 import ProductForm, { ProductFormData } from "@/components/admin/ProductForm";
 import { FiEdit2, FiTrash2, FiPlus, FiSearch } from "react-icons/fi";
 import SpinnerbLoader from "@/components/ui/SpinnerbLoader";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
+
+const PAGE_SIZE = 10;
 
 const BRANDS = ["Dell", "Lenovo", "HP", "ASUS", "Apple", "MSI", "Acer"];
 const CATEGORIES: ProductCategory[] = [
@@ -49,6 +60,7 @@ export default function AdminProducts() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Form state
   const [formOpen, setFormOpen] = useState(false);
@@ -93,6 +105,7 @@ export default function AdminProducts() {
     }
 
     setFilteredProducts(filtered);
+    setCurrentPage(1);
   }, [products, searchQuery, brandFilter, categoryFilter, minPrice, maxPrice]);
 
   async function loadProducts() {
@@ -199,6 +212,26 @@ export default function AdminProducts() {
     setCategoryFilter("");
     setMinPrice("");
     setMaxPrice("");
+    setCurrentPage(1);
+  }
+
+  function getPageRange(
+    current: number,
+    total: number,
+  ): (number | "ellipsis")[] {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    if (current <= 4) return [1, 2, 3, 4, 5, "ellipsis", total];
+    if (current >= total - 3)
+      return [1, "ellipsis", total - 4, total - 3, total - 2, total - 1, total];
+    return [
+      1,
+      "ellipsis",
+      current - 1,
+      current,
+      current + 1,
+      "ellipsis",
+      total,
+    ];
   }
 
   if (loading) {
@@ -296,7 +329,10 @@ export default function AdminProducts() {
 
       {/* Results Count */}
       <p className="text-sm text-black/60">
-        Showing {filteredProducts.length} of {products.length} products
+        Showing{" "}
+        {filteredProducts.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}–
+        {Math.min(currentPage * PAGE_SIZE, filteredProducts.length)} of{" "}
+        {filteredProducts.length} products
       </p>
 
       {/* Products Table */}
@@ -309,7 +345,7 @@ export default function AdminProducts() {
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Cost</TableHead>
-              <TableHead>Stock Status</TableHead>
+              <TableHead>On Sale</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -324,47 +360,123 @@ export default function AdminProducts() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredProducts.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>{product.brand}</TableCell>
-                  <TableCell>
-                    {product.category.charAt(0).toUpperCase() +
-                      product.category.slice(1)}
-                  </TableCell>
-                  <TableCell>R {product.price.toLocaleString()}</TableCell>
-                  <TableCell>R {product.cost.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                      In Stock
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditClick(product)}
-                        className="h-8 w-8 p-0"
+              filteredProducts
+                .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+                .map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="font-medium">
+                      {product.name}
+                    </TableCell>
+                    <TableCell>{product.brand}</TableCell>
+                    <TableCell>
+                      {product.category.charAt(0).toUpperCase() +
+                        product.category.slice(1)}
+                    </TableCell>
+                    <TableCell>R {product.price.toLocaleString()}</TableCell>
+                    <TableCell>R {product.cost.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          product.onSale
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
                       >
-                        <FiEdit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteClick(product)}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <FiTrash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
+                        {product.onSale ? "Yes" : "No"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditClick(product)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <FiEdit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteClick(product)}
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <FiTrash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {Math.ceil(filteredProducts.length / PAGE_SIZE) > 1 && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((p) => Math.max(1, p - 1));
+                }}
+                aria-disabled={currentPage === 1}
+                className={
+                  currentPage === 1 ? "pointer-events-none opacity-40" : ""
+                }
+              />
+            </PaginationItem>
+            {getPageRange(
+              currentPage,
+              Math.ceil(filteredProducts.length / PAGE_SIZE),
+            ).map((page, idx) =>
+              page === "ellipsis" ? (
+                <PaginationItem key={`e-${idx}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    href="#"
+                    isActive={page === currentPage}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage(page);
+                    }}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ),
+            )}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((p) =>
+                    Math.min(
+                      Math.ceil(filteredProducts.length / PAGE_SIZE),
+                      p + 1,
+                    ),
+                  );
+                }}
+                aria-disabled={
+                  currentPage === Math.ceil(filteredProducts.length / PAGE_SIZE)
+                }
+                className={
+                  currentPage === Math.ceil(filteredProducts.length / PAGE_SIZE)
+                    ? "pointer-events-none opacity-40"
+                    : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
 
       {/* Product Form Modal */}
       <ProductForm

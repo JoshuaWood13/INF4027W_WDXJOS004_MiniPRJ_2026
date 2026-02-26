@@ -19,6 +19,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FiEye } from "react-icons/fi";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
+
+const PAGE_SIZE = 10;
 
 export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -29,6 +40,7 @@ export default function AdminOrders() {
   const [endDate, setEndDate] = useState("");
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     loadOrders();
@@ -55,6 +67,7 @@ export default function AdminOrders() {
     }
 
     setFilteredOrders(filtered);
+    setCurrentPage(1);
   }, [orders, statusFilter, startDate, endDate]);
 
   async function loadOrders() {
@@ -79,6 +92,26 @@ export default function AdminOrders() {
     setStatusFilter("");
     setStartDate("");
     setEndDate("");
+    setCurrentPage(1);
+  }
+
+  function getPageRange(
+    current: number,
+    total: number,
+  ): (number | "ellipsis")[] {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    if (current <= 4) return [1, 2, 3, 4, 5, "ellipsis", total];
+    if (current >= total - 3)
+      return [1, "ellipsis", total - 4, total - 3, total - 2, total - 1, total];
+    return [
+      1,
+      "ellipsis",
+      current - 1,
+      current,
+      current + 1,
+      "ellipsis",
+      total,
+    ];
   }
 
   function formatDate(date: Date) {
@@ -90,7 +123,7 @@ export default function AdminOrders() {
   }
 
   function formatPrice(price: number): string {
-    return price.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, "$1,");
+    return price.toLocaleString();
   }
 
   return (
@@ -115,6 +148,7 @@ export default function AdminOrders() {
               <option value="">All Statuses</option>
               <option value="pending">Pending</option>
               <option value="complete">Complete</option>
+              <option value="refunded">Refunded</option>
             </select>
           </div>
 
@@ -161,7 +195,10 @@ export default function AdminOrders() {
 
       {/* Results Count */}
       <div className="mb-3 text-sm text-black/60">
-        Showing {filteredOrders.length} of {orders.length} orders
+        Showing{" "}
+        {filteredOrders.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}–
+        {Math.min(currentPage * PAGE_SIZE, filteredOrders.length)} of{" "}
+        {filteredOrders.length} orders
       </div>
 
       {/* Orders Table */}
@@ -183,38 +220,108 @@ export default function AdminOrders() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell>{formatDate(order.createdAt)}</TableCell>
-                  <TableCell>{order.items.length} items</TableCell>
-                  <TableCell>R{formatPrice(order.totalAmount)}</TableCell>
-                  <TableCell>{order.paymentType}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        order.status === "complete"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {order.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleViewDetails(order)}
-                    >
-                      <FiEye className="mr-1" />
-                      View
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredOrders
+                .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+                .map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell>{formatDate(order.createdAt)}</TableCell>
+                    <TableCell>{order.items.length} items</TableCell>
+                    <TableCell>R{formatPrice(order.totalAmount)}</TableCell>
+                    <TableCell>{order.paymentType}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${
+                          order.status === "complete"
+                            ? "bg-green-100 text-green-800"
+                            : order.status === "refunded"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleViewDetails(order)}
+                      >
+                        <FiEye className="mr-1" />
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>
+      )}
+
+      {/* Pagination */}
+      {Math.ceil(filteredOrders.length / PAGE_SIZE) > 1 && (
+        <Pagination className="mt-4">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((p) => Math.max(1, p - 1));
+                }}
+                aria-disabled={currentPage === 1}
+                className={
+                  currentPage === 1 ? "pointer-events-none opacity-40" : ""
+                }
+              />
+            </PaginationItem>
+            {getPageRange(
+              currentPage,
+              Math.ceil(filteredOrders.length / PAGE_SIZE),
+            ).map((page, idx) =>
+              page === "ellipsis" ? (
+                <PaginationItem key={`e-${idx}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    href="#"
+                    isActive={page === currentPage}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage(page);
+                    }}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ),
+            )}
+            <PaginationItem>
+              <PaginationNext
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((p) =>
+                    Math.min(
+                      Math.ceil(filteredOrders.length / PAGE_SIZE),
+                      p + 1,
+                    ),
+                  );
+                }}
+                aria-disabled={
+                  currentPage === Math.ceil(filteredOrders.length / PAGE_SIZE)
+                }
+                className={
+                  currentPage === Math.ceil(filteredOrders.length / PAGE_SIZE)
+                    ? "pointer-events-none opacity-40"
+                    : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       )}
 
       {/* Order Details Dialog */}
@@ -258,22 +365,24 @@ export default function AdminOrders() {
               </div>
 
               {/* Shipping Address */}
-              <div>
-                <p className="text-sm font-medium text-black/60 mb-2">
-                  Shipping Address
-                </p>
-                <div className="bg-black/5 p-3 rounded-lg">
-                  <p>
-                    {viewingOrder.shippingAddress.street},{" "}
-                    {viewingOrder.shippingAddress.suburb}
+              {viewingOrder.shippingAddress && (
+                <div>
+                  <p className="text-sm font-medium text-black/60 mb-2">
+                    Shipping Address
                   </p>
-                  <p>
-                    {viewingOrder.shippingAddress.city},{" "}
-                    {viewingOrder.shippingAddress.province}{" "}
-                    {viewingOrder.shippingAddress.postalCode}
-                  </p>
+                  <div className="bg-black/5 p-3 rounded-lg">
+                    <p>
+                      {viewingOrder.shippingAddress.street},{" "}
+                      {viewingOrder.shippingAddress.suburb}
+                    </p>
+                    <p>
+                      {viewingOrder.shippingAddress.city},{" "}
+                      {viewingOrder.shippingAddress.province}{" "}
+                      {viewingOrder.shippingAddress.postalCode}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Gift Info */}
               {viewingOrder.isGift && (

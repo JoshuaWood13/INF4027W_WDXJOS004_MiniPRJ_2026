@@ -65,6 +65,7 @@ export default function ProductForm({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [initialData, setInitialData] = useState<string>("");
+  const [discountType, setDiscountType] = useState<"amount" | "percentage">("amount");
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
     brand: "",
@@ -110,6 +111,9 @@ export default function ProductForm({
       setInitialData(JSON.stringify(data));
       setPreviewUrl(product.images[0] || "");
       setSelectedFile(null);
+      setDiscountType(
+        product.discount.percentage > 0 ? "percentage" : "amount",
+      );
     } else {
       // Reset form for new product
       setFormData({
@@ -138,6 +142,7 @@ export default function ProductForm({
       setInitialData("");
       setPreviewUrl("");
       setSelectedFile(null);
+      setDiscountType("amount");
     }
   }, [product, open]);
 
@@ -145,7 +150,14 @@ export default function ProductForm({
     e.preventDefault();
     setLoading(true);
     try {
-      let finalData = { ...formData };
+      let finalData = {
+        ...formData,
+        discount: {
+          amount: discountType === "amount" ? formData.discount.amount : 0,
+          percentage:
+            discountType === "percentage" ? formData.discount.percentage : 0,
+        },
+      };
 
       // Upload image if a new file was selected
       if (selectedFile) {
@@ -228,10 +240,29 @@ export default function ProductForm({
     };
   }, [previewUrl]);
 
+  // Auto-set onSale based on whether a discount value is present
+  useEffect(() => {
+    const hasDiscount =
+      discountType === "amount"
+        ? formData.discount.amount > 0
+        : formData.discount.percentage > 0;
+    if (formData.onSale !== hasDiscount) {
+      updateField("onSale", hasDiscount);
+    }
+  }, [formData.discount.amount, formData.discount.percentage, discountType]);
+
   function hasChanges(): boolean {
     if (!product) return true; // New product
     if (selectedFile) return true; // New image selected
     return JSON.stringify(formData) !== initialData;
+  }
+
+  function hasInvalidDiscount(): boolean {
+    return (
+      discountType === "amount" &&
+      formData.discount.amount > 0 &&
+      formData.discount.amount >= formData.price
+    );
   }
 
   return (
@@ -318,7 +349,7 @@ export default function ProductForm({
                       e.target.value ? Number(e.target.value) : 0,
                     )
                   }
-                  placeholder="59999"
+                  placeholder=""
                   className="w-full px-3 py-2 border border-black/10 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                 />
               </div>
@@ -337,7 +368,7 @@ export default function ProductForm({
                       e.target.value ? Number(e.target.value) : 0,
                     )
                   }
-                  placeholder="45000"
+                  placeholder=""
                   className="w-full px-3 py-2 border border-black/10 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                 />
               </div>
@@ -483,10 +514,11 @@ export default function ProductForm({
 
             <div>
               <label className="block text-sm font-medium mb-1">
-                Product Image <span className="text-red-500">*</span>
+                Product Image
+                {!product && <span className="text-red-500"> *</span>}
               </label>
               <input
-                required
+                required={!product}
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
@@ -530,64 +562,99 @@ export default function ProductForm({
           <div className="space-y-4">
             <h3 className="font-semibold text-sm">Pricing & Promotion</h3>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Discount Amount (ZAR)
-                </label>
+            <div>
+              <label className="block text-sm font-medium mb-1">Discount</label>
+              <div className="flex">
+                {/* Pill toggle */}
+                <div className="inline-flex rounded-md border border-black/20 overflow-hidden mb-3">
+                  <button
+                    type="button"
+                    onClick={() => setDiscountType("amount")}
+                    className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+                      discountType === "amount"
+                        ? "bg-black text-white"
+                        : "bg-white text-black hover:bg-black/5"
+                    }`}
+                  >
+                    Fixed Amount (ZAR)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDiscountType("percentage")}
+                    className={`px-4 py-1.5 text-sm font-medium border-l border-black/20 transition-colors ${
+                      discountType === "percentage"
+                        ? "bg-black text-white"
+                        : "bg-white text-black hover:bg-black/5"
+                    }`}
+                  >
+                    Percentage (%)
+                  </button>
+                </div>
+              </div>
+              {discountType === "amount" ? (
+                <>
+                  <input
+                    type="number"
+                    min={0}
+                    value={formData.discount.amount || ""}
+                    onChange={(e) =>
+                      updateField("discount", {
+                        ...formData.discount,
+                        amount: e.target.value ? Number(e.target.value) : 0,
+                      })
+                    }
+                    placeholder="e.g. 500"
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                      hasInvalidDiscount()
+                        ? "border-red-400 focus:ring-red-400"
+                        : "border-black/10 focus:ring-black"
+                    }`}
+                  />
+                  {hasInvalidDiscount() && (
+                    <p className="mt-1 text-xs text-red-500">
+                      Discount must be less than the product price (R{" "}
+                      {formData.price.toLocaleString()}).
+                    </p>
+                  )}
+                </>
+              ) : (
                 <input
                   type="number"
-                  value={formData.discount.amount}
+                  min={0}
+                  max={99}
+                  value={formData.discount.percentage || ""}
                   onChange={(e) =>
                     updateField("discount", {
                       ...formData.discount,
-                      amount: Number(e.target.value),
+                      percentage: e.target.value ? Number(e.target.value) : 0,
                     })
                   }
-                  placeholder="0"
+                  placeholder="e.g. 15"
                   className="w-full px-3 py-2 border border-black/10 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Discount Percentage
-                </label>
-                <input
-                  type="number"
-                  value={formData.discount.percentage}
-                  onChange={(e) =>
-                    updateField("discount", {
-                      ...formData.discount,
-                      percentage: Number(e.target.value),
-                    })
-                  }
-                  placeholder="0"
-                  className="w-full px-3 py-2 border border-black/10 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                />
-              </div>
+              )}
             </div>
 
             <div className="flex gap-6">
-              <label className="flex items-center gap-2">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.featured}
                   onChange={(e) => updateField("featured", e.target.checked)}
-                  className="w-4 h-4"
+                  className="w-4 h-4 accent-black"
                 />
                 <span className="text-sm">Featured Product</span>
               </label>
 
-              <label className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={formData.onSale}
-                  onChange={(e) => updateField("onSale", e.target.checked)}
-                  className="w-4 h-4"
+                  readOnly
+                  className="w-4 h-4 accent-black cursor-default"
                 />
-                <span className="text-sm">On Sale</span>
-              </label>
+                <span className="text-sm text-black/50">On Sale (auto)</span>
+              </div>
             </div>
           </div>
 
@@ -600,7 +667,10 @@ export default function ProductForm({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || !hasChanges()}>
+            <Button
+              type="submit"
+              disabled={loading || !hasChanges() || hasInvalidDiscount()}
+            >
               {loading
                 ? "Saving..."
                 : product
