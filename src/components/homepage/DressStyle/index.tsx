@@ -4,6 +4,7 @@ import React from "react";
 import * as motion from "framer-motion/client";
 import DressStyleCard from "./DressStyleCard";
 
+// Category section
 const DressStyle = () => {
   return (
     <div className="px-4 xl:px-0">
@@ -30,12 +31,12 @@ const DressStyle = () => {
           <DressStyleCard
             title="Gaming"
             url="/shop?category=gaming"
-            className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/images/dress-style-1.png')]"
+            className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/images/category-gaming.webp')] bg-[position:right_-4rem_top]"
           />
           <DressStyleCard
             title="Business"
             url="/shop?category=business"
-            className="md:max-w-[684px] h-[190px] bg-[url('/images/dress-style-2.png')]"
+            className="md:max-w-[684px] h-[190px] bg-[url('/images/category-business.png')]"
           />
         </motion.div>
         <motion.div
@@ -48,12 +49,12 @@ const DressStyle = () => {
           <DressStyleCard
             title="Student"
             url="/shop?category=student"
-            className="md:max-w-[684px] h-[190px] bg-[url('/images/dress-style-3.png')]"
+            className="md:max-w-[684px] h-[190px] bg-[url('/images/category-student.png')]"
           />
           <DressStyleCard
             title="Ultrabook"
             url="/shop?category=ultrabook"
-            className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/images/dress-style-4.png')]"
+            className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/images/category-ultrabook.png')] bg-[position:right_-5rem_top]"
           />
         </motion.div>
       </section>

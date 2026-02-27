@@ -8,6 +8,7 @@ type DressStyleCardProps = {
   className?: string;
 };
 
+// Caregory Card
 const DressStyleCard = ({ title, url, className }: DressStyleCardProps) => {
   return (
     <Link
