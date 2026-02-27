@@ -49,6 +49,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     typeof searchParams.sort === "string"
       ? (searchParams.sort as "price-asc" | "price-desc" | "newest" | "sales")
       : undefined;
+  const onSale = searchParams.onSale === "true";
+  const featured = searchParams.featured === "true";
 
   const isAiResults = Boolean(aiResultsParam);
 
@@ -104,6 +106,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     products = products.filter((p) =>
       storages.some((s) => p.specs.storage.startsWith(s)),
     );
+  if (onSale) products = products.filter((p) => p.onSale);
+  if (featured) products = products.filter((p) => p.featured);
 
   // Apply search filter
   if (search) {
@@ -140,10 +144,12 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     }
   }
 
-  // Build title — only AI, search, and categories affect the heading
+  // Build title — AI, search, categories, onSale, featured affect the heading
   const titleParts: string[] = [];
   if (isAiResults) titleParts.push("AI Recommendations");
   if (search) titleParts.push(`Results for: "${search}"`);
+  if (onSale) titleParts.push("On Sale");
+  if (featured) titleParts.push("Featured");
   if (categories.length > 0)
     titleParts.push(
       categories.map((c) => c.charAt(0).toUpperCase() + c.slice(1)).join(", "),

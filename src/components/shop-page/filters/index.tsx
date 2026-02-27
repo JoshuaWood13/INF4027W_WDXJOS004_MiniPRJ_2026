@@ -8,6 +8,7 @@ import PriceSection from "@/components/shop-page/filters/PriceSection";
 import RamSection from "@/components/shop-page/filters/RamSection";
 import ProcessorSection from "@/components/shop-page/filters/ProcessorSection";
 import StorageSection from "@/components/shop-page/filters/StorageSection";
+import StatusSection from "@/components/shop-page/filters/StatusSection";
 import { FiSliders } from "react-icons/fi";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -23,7 +24,9 @@ const Filters = () => {
     searchParams.has("ram") ||
     searchParams.has("screen") ||
     searchParams.has("processor") ||
-    searchParams.has("storage");
+    searchParams.has("storage") ||
+    searchParams.has("onSale") ||
+    searchParams.has("featured");
 
   const handleClearAll = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -36,6 +39,8 @@ const Filters = () => {
       "screen",
       "processor",
       "storage",
+      "onSale",
+      "featured",
     ].forEach((k) => params.delete(k));
     router.push(`/shop?${params.toString()}`, { scroll: false });
   };
@@ -71,6 +76,8 @@ const Filters = () => {
       <StorageSection />
       <hr className="border-t-black/10" />
       <ScreenSizeSection />
+      <hr className="border-t-black/10" />
+      <StatusSection />
     </>
   );
 };

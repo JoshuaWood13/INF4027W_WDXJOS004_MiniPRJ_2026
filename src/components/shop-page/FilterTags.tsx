@@ -21,6 +21,8 @@ const FilterTags = () => {
     .filter(Boolean);
   const minPrice = searchParams.get("minPrice");
   const maxPrice = searchParams.get("maxPrice");
+  const onSale = searchParams.get("onSale") === "true";
+  const featured = searchParams.get("featured") === "true";
 
   // Remove one value from a multi-select param, or delete the param if is last
   const removeFromParam = (key: string, value: string) => {
@@ -78,6 +80,26 @@ const FilterTags = () => {
   if (minPrice || maxPrice) {
     const label = `R${formatPrice(minPrice || "0")} – R${formatPrice(maxPrice || "80000")}`;
     tags.push({ label, onRemove: removePrice });
+  }
+  if (onSale) {
+    tags.push({
+      label: "On Sale",
+      onRemove: () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("onSale");
+        router.push(`/shop?${params.toString()}`, { scroll: false });
+      },
+    });
+  }
+  if (featured) {
+    tags.push({
+      label: "Featured",
+      onRemove: () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("featured");
+        router.push(`/shop?${params.toString()}`, { scroll: false });
+      },
+    });
   }
 
   if (tags.length === 0) return null;
