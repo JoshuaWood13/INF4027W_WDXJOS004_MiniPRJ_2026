@@ -89,9 +89,11 @@ const TopNavbar = () => {
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
   const aiPanelRef = useRef<HTMLDivElement>(null);
   const { count: activityCount } = useActivityCount();
+  const [isSearching, setIsSearching] = useState(false);
 
   // Handle search query
   function handleSearch() {
+    setIsSearching(true);
     if (searchQuery.trim()) {
       router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
     } else {
@@ -146,6 +148,7 @@ const TopNavbar = () => {
   useEffect(() => {
     const search = searchParams.get("search") || "";
     setSearchQuery(search);
+    setIsSearching(false);
   }, [searchParams]);
 
   return (
@@ -186,15 +189,20 @@ const TopNavbar = () => {
               onClick={handleSearch}
               aria-label="Search"
               className="flex items-center"
+              disabled={isSearching}
             >
-              <Image
-                priority
-                src="/icons/search.svg"
-                height={20}
-                width={20}
-                alt="search"
-                className="min-w-5 min-h-5"
-              />
+              {isSearching ? (
+                <div className="w-5 h-5 min-w-5 min-h-5 rounded-full border-2 border-black/20 border-t-black animate-spin" />
+              ) : (
+                <Image
+                  priority
+                  src="/icons/search.svg"
+                  height={20}
+                  width={20}
+                  alt="search"
+                  className="min-w-5 min-h-5"
+                />
+              )}
             </button>
           </InputGroup.Text>
           <InputGroup.Input
@@ -207,8 +215,11 @@ const TopNavbar = () => {
                 handleSearch();
               }
             }}
-            placeholder="Search for products..."
+            placeholder={
+              isSearching ? "Searching..." : "Search for products..."
+            }
             className="bg-transparent placeholder:text-black/40"
+            disabled={isSearching}
           />
         </InputGroup>
         <div className="flex items-center">
