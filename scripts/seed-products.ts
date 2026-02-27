@@ -71,7 +71,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "2.5 kg",
     },
-    images: ["/images/laptops/asus-rog-strix-g16.png"],
+    images: ["/images/laptops/asus-rog-strix-g16.webp"],
     tags: ["gaming", "rgb", "high-refresh", "nvidia"],
     description:
       "A powerful gaming laptop featuring an Intel i7 processor and RTX 4060 GPU, designed for smooth gameplay at high settings.",
@@ -95,7 +95,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "2.5 kg",
     },
-    images: ["/images/laptops/lenovo-legion-5-pro.png"],
+    images: ["/images/laptops/lenovo-legion-5-pro.webp"],
     tags: ["gaming", "QHD", "ryzen", "nvidia"],
     description:
       "A high-performance gaming laptop with a stunning QHD display and powerful AMD Ryzen processor for competitive and AAA gaming.",
@@ -118,7 +118,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "2.25 kg",
     },
-    images: ["/images/laptops/msi-katana-15.png"],
+    images: ["/images/laptops/msi-katana-15.webp"],
     tags: ["gaming", "budget", "nvidia", "entry-level"],
     description:
       "An affordable entry into gaming with RTX 4050 graphics and a 144Hz display, ideal for esports and lighter titles.",
@@ -141,7 +141,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "2.37 kg",
     },
-    images: ["/images/laptops/hp-omen-16.png"],
+    images: ["/images/laptops/hp-omen-16.webp"],
     tags: ["gaming", "premium", "QHD", "nvidia"],
     description:
       "Premium gaming experience with RTX 4070 and QHD 165Hz display. Built for serious gamers who want no compromise.",
@@ -164,7 +164,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "2.1 kg",
     },
-    images: ["/images/laptops/acer-nitro-v-15.png"],
+    images: ["/images/laptops/acer-nitro-v-15.webp"],
     tags: ["gaming", "budget", "nvidia", "amd"],
     description:
       "Budget-friendly gaming with RTX 4050 and a fast display. Perfect for students who game on the side.",
@@ -189,7 +189,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Pro",
       weight: "1.12 kg",
     },
-    images: ["/images/laptops/lenovo-thinkpad-x1-carbon.png"],
+    images: ["/images/laptops/lenovo-thinkpad-x1-carbon.webp"],
     tags: ["business", "lightweight", "thinkpad", "professional"],
     description:
       "The gold standard for business laptops. Ultra-light carbon fiber build, legendary ThinkPad keyboard, and all-day battery.",
@@ -213,7 +213,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Pro",
       weight: "1.37 kg",
     },
-    images: ["/images/laptops/dell-latitude-7440.png"],
+    images: ["/images/laptops/dell-latitude-7440.webp"],
     tags: ["business", "enterprise", "dell", "professional"],
     description:
       "Enterprise-grade business laptop with robust security features, excellent keyboard, and manageable fleet deployment.",
@@ -236,7 +236,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Pro",
       weight: "1.36 kg",
     },
-    images: ["/images/laptops/hp-elitebook-840.png"],
+    images: ["/images/laptops/hp-elitebook-840.webp"],
     tags: ["business", "enterprise", "hp", "secure"],
     description:
       "A premium business notebook with MIL-STD durability, HP Wolf Security, and a bright outdoor-readable display.",
@@ -259,7 +259,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Pro",
       weight: "1.22 kg",
     },
-    images: ["/images/laptops/lenovo-thinkpad-t14s.png"],
+    images: ["/images/laptops/lenovo-thinkpad-t14s.webp"],
     tags: ["business", "amd", "thinkpad", "lightweight"],
     description:
       "Business performance meets AMD efficiency. Great battery life and the trusted ThinkPad build quality at a competitive price.",
@@ -282,7 +282,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Pro",
       weight: "1.66 kg",
     },
-    images: ["/images/laptops/dell-vostro-3520.png"],
+    images: ["/images/laptops/dell-vostro-3520.webp"],
     tags: ["business", "budget", "dell", "small-business"],
     description:
       "Reliable and affordable business laptop for small businesses and startups. Comes with Windows Pro for domain management.",
@@ -307,7 +307,7 @@ const products: SeedProductBase[] = [
       os: "macOS Sonoma",
       weight: "1.24 kg",
     },
-    images: ["/images/laptops/macbook-air-m3.png"],
+    images: ["/images/laptops/macbook-air-m3.webp"],
     tags: ["ultrabook", "apple", "lightweight", "fanless"],
     description:
       "The fanless MacBook Air with M3 chip delivers incredible performance in a thin, light design with an all-day battery.",
@@ -331,7 +331,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "1.23 kg",
     },
-    images: ["/images/laptops/dell-xps-13-plus.png"],
+    images: ["/images/laptops/dell-xps-13-plus.webp"],
     tags: ["ultrabook", "oled", "premium", "touch"],
     description:
       "A stunning ultrabook with an edge-to-edge OLED touchscreen, invisible trackpad, and premium CNC aluminum build.",
@@ -354,7 +354,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "1.2 kg",
     },
-    images: ["/images/laptops/asus-zenbook-14-oled.png"],
+    images: ["/images/laptops/asus-zenbook-14-oled.webp"],
     tags: ["ultrabook", "oled", "lightweight", "amd"],
     description:
       "A gorgeous 2.8K OLED display in a compact, lightweight body. Exceptional color accuracy for creatives and everyday users alike.",
@@ -377,7 +377,7 @@ const products: SeedProductBase[] = [
       os: "macOS Sonoma",
       weight: "1.61 kg",
     },
-    images: ["/images/laptops/macbook-pro-14-m3.png"],
+    images: ["/images/laptops/macbook-pro-14-m3.webp"],
     tags: ["ultrabook", "apple", "professional", "creative"],
     description:
       "Pro-level performance for developers, designers, and video editors. The M3 Pro chip handles demanding creative workloads with ease.",
@@ -401,7 +401,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "1.39 kg",
     },
-    images: ["/images/laptops/hp-spectre-x360-14.png"],
+    images: ["/images/laptops/hp-spectre-x360-14.webp"],
     tags: ["ultrabook", "2-in-1", "oled", "touch", "convertible"],
     description:
       "A premium 2-in-1 convertible with a stunning OLED touch display, gem-cut design, and versatile tent/tablet modes.",
@@ -426,7 +426,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "1.78 kg",
     },
-    images: ["/images/laptops/acer-aspire-3-15.png"],
+    images: ["/images/laptops/acer-aspire-3-15.webp"],
     tags: ["student", "budget", "affordable", "everyday"],
     description:
       "A reliable everyday laptop for students on a budget. Handles web browsing, documents, and light media with ease.",
@@ -449,7 +449,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "1.62 kg",
     },
-    images: ["/images/laptops/lenovo-ideapad-slim-3.png"],
+    images: ["/images/laptops/lenovo-ideapad-slim-3.webp"],
     tags: ["student", "budget", "lenovo", "everyday"],
     description:
       "Great value for students with a spacious 512GB SSD, comfortable keyboard, and decent battery life for long lecture days.",
@@ -472,7 +472,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home S",
       weight: "1.69 kg",
     },
-    images: ["/images/laptops/hp-15s.png"],
+    images: ["/images/laptops/hp-15s.webp"],
     tags: ["student", "budget", "hp", "entry-level"],
     description:
       "The most affordable option for basic student needs. Perfect for note-taking, email, and web-based coursework.",
@@ -496,7 +496,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "1.7 kg",
     },
-    images: ["/images/laptops/asus-vivobook-15.png"],
+    images: ["/images/laptops/asus-vivobook-15.webp"],
     tags: ["student", "everyday", "asus", "colorful"],
     description:
       "Stylish and capable student laptop with an ergonomic hinge, fast SSD, and a lightweight design for campus life.",
@@ -519,7 +519,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Home",
       weight: "1.65 kg",
     },
-    images: ["/images/laptops/dell-inspiron-15.png"],
+    images: ["/images/laptops/dell-inspiron-15.webp"],
     tags: ["student", "dell", "reliable", "mainstream"],
     description:
       "A well-rounded student laptop from Dell with a comfortable keyboard, good display, and solid build quality.",
@@ -545,7 +545,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Pro",
       weight: "1.91 kg",
     },
-    images: ["/images/laptops/dell-precision-5680.png"],
+    images: ["/images/laptops/dell-precision-5680.webp"],
     tags: ["workstation", "professional", "CAD", "4K", "oled"],
     description:
       "A mobile workstation for engineers and 3D professionals. ISV-certified for AutoCAD, SolidWorks, and other pro apps.",
@@ -568,7 +568,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Pro",
       weight: "1.73 kg",
     },
-    images: ["/images/laptops/lenovo-thinkpad-p16s.png"],
+    images: ["/images/laptops/lenovo-thinkpad-p16s.webp"],
     tags: ["workstation", "thinkpad", "ISV-certified", "engineering"],
     description:
       "A lighter mobile workstation with professional NVIDIA graphics, ISV certification, and classic ThinkPad reliability.",
@@ -591,7 +591,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Pro",
       weight: "2.85 kg",
     },
-    images: ["/images/laptops/hp-zbook-fury-16.png"],
+    images: ["/images/laptops/hp-zbook-fury-16.webp"],
     tags: ["workstation", "premium", "64GB", "4K", "creative"],
     description:
       "The ultimate mobile workstation. 64GB RAM, 4K DreamColor display, and top-tier NVIDIA Ada GPU for the most demanding workloads.",
@@ -615,7 +615,7 @@ const products: SeedProductBase[] = [
       os: "macOS Sonoma",
       weight: "2.14 kg",
     },
-    images: ["/images/laptops/macbook-pro-16-m3-max.png"],
+    images: ["/images/laptops/macbook-pro-16-m3-max.webp"],
     tags: ["workstation", "apple", "creative", "video-editing", "premium"],
     description:
       "The most powerful MacBook ever. M3 Max drives 8K video editing, 3D rendering, and massive datasets without breaking a sweat.",
@@ -638,7 +638,7 @@ const products: SeedProductBase[] = [
       os: "Windows 11 Pro",
       weight: "2.4 kg",
     },
-    images: ["/images/laptops/asus-proart-studiobook-16.png"],
+    images: ["/images/laptops/asus-proart-studiobook-16.webp"],
     tags: ["workstation", "creative", "oled", "4K", "color-accurate"],
     description:
       "Built for creative professionals with a Pantone-validated 4K OLED display and powerful specs for video editing and design.",
