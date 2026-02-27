@@ -11,53 +11,27 @@ const footerLinksData: FooterLinks[] = [
       {
         id: 11,
         label: "gaming laptops",
-        url: "/shop#gaming",
+        url: "/shop?category=gaming",
       },
       {
         id: 12,
         label: "business laptops",
-        url: "/shop#business",
+        url: "/shop?category=business",
       },
       {
         id: 13,
         label: "student laptops",
-        url: "/shop#student",
+        url: "/shop?category=student",
       },
       {
         id: 14,
         label: "ultrabooks",
-        url: "/shop#ultrabook",
+        url: "/shop?category=ultrabook",
       },
     ],
   },
   {
     id: 2,
-    title: "help",
-    children: [
-      {
-        id: 21,
-        label: "customer support",
-        url: "#",
-      },
-      {
-        id: 22,
-        label: "delivery details",
-        url: "#",
-      },
-      {
-        id: 23,
-        label: "terms & conditions",
-        url: "#",
-      },
-      {
-        id: 24,
-        label: "privacy policy",
-        url: "#",
-      },
-    ],
-  },
-  {
-    id: 3,
     title: "account",
     children: [
       {
@@ -83,7 +57,7 @@ const footerLinksData: FooterLinks[] = [
     ],
   },
   {
-    id: 4,
+    id: 3,
     title: "brands",
     children: [
       {

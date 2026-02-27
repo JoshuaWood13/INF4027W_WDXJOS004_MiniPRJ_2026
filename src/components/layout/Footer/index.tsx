@@ -5,8 +5,7 @@ import { PaymentBadge, SocialNetworks } from "./footer.types";
 import { FaFacebookF, FaGithub, FaInstagram, FaTwitter } from "react-icons/fa";
 import Link from "next/link";
 import LinksSection from "./LinksSection";
-import Image from "next/image";
-import NewsLetterSection from "./NewsLetterSection";
+import NewsLetterSection from "./FriendReminderSection";
 import LayoutSpacing from "./LayoutSpacing";
 
 const socialsData: SocialNetworks[] = [
@@ -28,30 +27,7 @@ const socialsData: SocialNetworks[] = [
   {
     id: 4,
     icon: <FaGithub />,
-    url: "https://github.com",
-  },
-];
-
-const paymentBadgesData: PaymentBadge[] = [
-  {
-    id: 1,
-    srcUrl: "/icons/Visa.svg",
-  },
-  {
-    id: 2,
-    srcUrl: "/icons/mastercard.svg",
-  },
-  {
-    id: 3,
-    srcUrl: "/icons/paypal.svg",
-  },
-  {
-    id: 4,
-    srcUrl: "/icons/applePay.svg",
-  },
-  {
-    id: 5,
-    srcUrl: "/icons/googlePay.svg",
+    url: "https://github.com/JoshuaWood13/INF4027W_WDXJOS004_MiniPRJ_2026.git",
   },
 ];
 
@@ -105,26 +81,6 @@ const Footer = () => {
             <p className="text-sm text-center sm:text-left text-black/60 mb-4 sm:mb-0 sm:mr-1">
               LaptopWRLD &copy; {new Date().getFullYear()}. All rights reserved.
             </p>
-            <div className="flex items-center">
-              {paymentBadgesData.map((badge, _, arr) => (
-                <span
-                  key={badge.id}
-                  className={cn([
-                    arr.length !== badge.id && "mr-3",
-                    "w-[46px] h-[30px] rounded-[5px] border-[#D6DCE5] bg-white flex items-center justify-center",
-                  ])}
-                >
-                  <Image
-                    priority
-                    src={badge.srcUrl}
-                    width={33}
-                    height={100}
-                    alt="payment method"
-                    className="max-h-[15px]"
-                  />
-                </span>
-              ))}
-            </div>
           </div>
         </div>
         <LayoutSpacing />

@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@/styles/globals.css";
 import { satoshi } from "@/styles/fonts";
-import TopBanner from "@/components/layout/Banner/TopBanner";
 import TopNavbar from "@/components/layout/Navbar/TopNavbar";
 import Footer from "@/components/layout/Footer";
 import HolyLoader from "holy-loader";
@@ -27,13 +26,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={satoshi.className}>
         <HolyLoader color="#868686" />
-        <TopBanner />
         <Providers>
           <TopNavbar />
           {children}
+          <Footer />
         </Providers>
         <Toaster position="bottom-center" richColors />
-        <Footer />
       </body>
     </html>
   );
