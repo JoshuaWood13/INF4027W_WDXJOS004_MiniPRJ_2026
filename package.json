@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "npx tsx scripts/seed-products.ts"
+    "seed": "npx tsx scripts/seed-data.ts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.0",
