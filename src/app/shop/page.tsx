@@ -151,9 +151,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   if (onSale) titleParts.push("On Sale");
   if (featured) titleParts.push("Featured");
   if (categories.length > 0)
-    titleParts.push(
-      categories.map((c) => c.charAt(0).toUpperCase() + c.slice(1)).join(", "),
-    );
+    titleParts.push(categories.length === 1 ? categories[0].charAt(0).toUpperCase() + categories[0].slice(1) : "Multiple Categories");
   const pageTitle =
     titleParts.length > 0 ? titleParts.join(" — ") : "All Laptops";
 

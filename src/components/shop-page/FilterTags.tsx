@@ -23,6 +23,7 @@ const FilterTags = () => {
   const maxPrice = searchParams.get("maxPrice");
   const onSale = searchParams.get("onSale") === "true";
   const featured = searchParams.get("featured") === "true";
+  const aiResults = searchParams.get("aiResults");
 
   // Remove one value from a multi-select param, or delete the param if is last
   const removeFromParam = (key: string, value: string) => {
@@ -48,7 +49,7 @@ const FilterTags = () => {
     Number(val).toLocaleString("en-ZA");
 
   // Build an array of tag objects
-  const tags: { label: string; onRemove: () => void }[] = [];
+  const tags: { label: string; onRemove: () => void; ai?: boolean }[] = [];
 
   brands.forEach((b) =>
     tags.push({ label: b, onRemove: () => removeFromParam("brand", b) }),
@@ -101,6 +102,18 @@ const FilterTags = () => {
       },
     });
   }
+  // Disctinct colour for AI tag
+  if (aiResults) {
+    tags.push({
+      label: "AI Recommendations",
+      ai: true,
+      onRemove: () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("aiResults");
+        router.push(`/shop?${params.toString()}`, { scroll: false });
+      },
+    });
+  }
 
   if (tags.length === 0) return null;
 
@@ -109,7 +122,11 @@ const FilterTags = () => {
       {tags.map((tag, idx) => (
         <span
           key={idx}
-          className="flex items-center gap-1 bg-black/5 text-black/60 text-xs px-2.5 py-1 rounded-full border border-black/10"
+          className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border ${
+            tag.ai
+              ? "bg-violet-50 text-violet-700 border-violet-300"
+              : "bg-black/5 text-black/60 border-black/10"
+          }`}
         >
           {tag.label}
           <button
