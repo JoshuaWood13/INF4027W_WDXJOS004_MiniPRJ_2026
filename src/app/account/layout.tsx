@@ -18,6 +18,7 @@ import {
   FiUsers,
   FiLogOut,
 } from "react-icons/fi";
+import { showSuccessToast } from "@/components/ui/SuccessToast";
 
 const NAV_ITEMS = [
   { href: "/account", label: "Account", icon: FiUser },
@@ -35,9 +36,10 @@ function AccountShell({ children }: { children: React.ReactNode }) {
   const { count } = useActivityCount();
 
   async function handleSignOut() {
-    router.push("/");
     dispatch(clearCart());
     await signOut();
+    router.push("/");
+    showSuccessToast("Logged out successfully!");
   }
 
   function isActive(href: string) {

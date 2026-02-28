@@ -22,6 +22,7 @@ import { clearCart } from "@/lib/features/carts/cartsSlice";
 import { PiSparkleBold } from "react-icons/pi";
 import AISearchPanel from "./AISearchPanel";
 import { useActivityCount } from "@/lib/hooks/useActivityCount";
+import { showSuccessToast } from "@/components/ui/SuccessToast";
 
 const data: NavMenu = [
   {
@@ -142,6 +143,7 @@ const TopNavbar = () => {
     dispatch(clearCart());
     await signOut();
     router.push("/");
+    showSuccessToast("Logged out successfully!");
   }
 
   //Update search query for back/forward navigation
@@ -266,7 +268,7 @@ const TopNavbar = () => {
             <button
               type="button"
               onClick={() => setDropdownOpen((prev) => !prev)}
-              className="p-1 relative"
+              className="p-1 relative top-[2px]"
               aria-label="User menu"
               aria-expanded={dropdownOpen}
             >
@@ -279,7 +281,7 @@ const TopNavbar = () => {
                 className="max-w-[22px] max-h-[22px]"
               />
               {isLoggedIn && activityCount > 0 && (
-                <span className="border bg-black text-white rounded-full w-fit px-1 text-xs absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="border bg-black text-white rounded-full w-fit px-1 text-xs absolute -top-[12.5px] left-1/2 -translate-x-1/2">
                   {activityCount}
                 </span>
               )}

@@ -14,6 +14,7 @@ import {
 import { useAuth } from "@/lib/auth/AuthContext";
 import { addToWishlist, removeFromWishlist } from "@/lib/firestore/users";
 import { FiHeart } from "react-icons/fi";
+import { showSuccessToast } from "../ui/SuccessToast";
 
 type ProductCardProps = {
   data: Product;
@@ -41,7 +42,6 @@ const ProductCard = ({ data }: ProductCardProps) => {
     e.stopPropagation();
 
     if (!firebaseUser || !appUser) {
-      // TODO: Add toast or redriect
       return;
     }
 
@@ -52,8 +52,10 @@ const ProductCard = ({ data }: ProductCardProps) => {
     try {
       if (newWishlistedState) {
         await addToWishlist(firebaseUser.uid, data.id);
+        showSuccessToast("Added to wishlist!");
       } else {
         await removeFromWishlist(firebaseUser.uid, data.id);
+        showSuccessToast("Removed from wishlist!");
       }
       refreshAppUser().catch(console.error);
     } catch (error) {
