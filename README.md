@@ -28,7 +28,7 @@ Password: Password123!
 
 - **AI Product Search** — Natural language queries (e.g. "MSI gaming laptop under R20k")
 - **AI Image Search** — Upload a laptop image to find visually similar products
-- **AI Product Summaries**  — AI generated product summaries highlighting key features and use cases
+- **AI Product Summaries (Bonus)**  — AI generated product summaries highlighting key features and use cases
 
 ### Differentiating Features
 
