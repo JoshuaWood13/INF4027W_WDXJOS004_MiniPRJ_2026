@@ -146,6 +146,7 @@ export default function AdminProducts() {
               productName: data.name,
               newPrice: data.price,
               newDiscount: data.discount,
+              productImage: data.images?.[0] || "",
             }),
           });
         } catch (e) {
