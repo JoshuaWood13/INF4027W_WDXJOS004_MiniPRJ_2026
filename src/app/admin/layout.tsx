@@ -15,6 +15,7 @@ import {
   FiBarChart2,
   FiLogOut,
 } from "react-icons/fi";
+import { showSuccessToast } from "@/components/ui/SuccessToast";
 
 const NAV_ITEMS = [
   { href: "/admin/products", label: "Manage Products", icon: FiPackage },
@@ -29,9 +30,10 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   const { appUser, signOut } = useAuth();
 
   async function handleSignOut() {
-    router.push("/");
     dispatch(clearCart());
     await signOut();
+    router.push("/");
+    showSuccessToast("Logged out successfully!");
   }
 
   function isActive(href: string) {

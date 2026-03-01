@@ -40,6 +40,11 @@ function OrderConfirmationContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Scroll to top on mount so the confirmation header is always visible
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
+
   useEffect(() => {
     if (!orderId || !firebaseUser) return;
 
@@ -109,7 +114,7 @@ function OrderConfirmationContent() {
     minute: "2-digit",
   });
 
-  // Determine who is viewing the order 
+  // Determine who is viewing the order
   const isViewingAsRecipient =
     order.isGift && order.giftRecipientId === firebaseUser?.uid;
 
@@ -147,7 +152,7 @@ function OrderConfirmationContent() {
             <FiGift className="text-purple-500 text-xl flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-purple-900 mb-0.5">
-                Gift order sent!
+                Gift order sent
               </p>
               <p className="text-xs text-purple-700">
                 Your gift is awaiting the recipient&apos;s acceptance.{" "}
@@ -189,7 +194,7 @@ function OrderConfirmationContent() {
                   ? "Gift Declined"
                   : "You Got a Gift!"
               : order.isGift
-                ? "Gift Sent!"
+                ? "Gift Sent"
                 : "Order Confirmed"}
           </h2>
           <p className="text-black/60 text-sm md:text-base">

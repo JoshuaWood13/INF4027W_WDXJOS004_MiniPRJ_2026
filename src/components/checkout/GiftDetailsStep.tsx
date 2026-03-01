@@ -11,7 +11,7 @@ type GiftDetailsStepProps = {
   friends: Friend[];
   friendsLoading: boolean;
   selectedUid: string | null;
-  message: string;
+  message?: string;
   error: string;
   onRecipientSelect: (uid: string, displayName: string) => void;
   onMessageChange: (msg: string) => void;
@@ -94,7 +94,7 @@ export default function GiftDetailsStep({
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm font-semibold">Gift Message</p>
           <span className="text-xs text-black/40">
-            {message.length} / {MAX_MESSAGE_LENGTH}
+            {message?.length} / {MAX_MESSAGE_LENGTH}
           </span>
         </div>
         <textarea

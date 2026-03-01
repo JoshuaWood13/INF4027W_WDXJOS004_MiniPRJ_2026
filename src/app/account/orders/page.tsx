@@ -196,13 +196,7 @@ function OrderCard({
 
   // Card heading
   function getHeading() {
-    // if (isSentGift) {
-    //   return `Gift Sent to ${order.recipientDisplayName ?? "Recipient"}`;
-    // }
-    // if (isReceivedGift) {
-    //   return `Gift from ${order.senderDisplayName ?? "Someone"}`;
-    // }
-    // Regular order — show delivery status + date
+    // Format date for gift orders
     const formattedDate = order.createdAt.toLocaleDateString("en-ZA", {
       weekday: "short",
       day: "numeric",
@@ -215,17 +209,18 @@ function OrderCard({
     if (isReceivedGift) {
       return `Gift from ${order.senderDisplayName ?? "Someone"} - ${formattedDate}`;
     }
+    // Regular order — show delivery status + date
     const statusText =
       order.status === "complete" ? "Delivered" : "Order Placed";
     return `${statusText} ${formattedDate}`;
   }
 
   // Format date for gift orders (no "Delivered/Order Placed" prefix)
-  const formattedDate = order.createdAt.toLocaleDateString("en-ZA", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  // const formattedDate = order.createdAt.toLocaleDateString("en-ZA", {
+  //   day: "numeric",
+  //   month: "short",
+  //   year: "numeric",
+  // });
 
   return (
     <Link

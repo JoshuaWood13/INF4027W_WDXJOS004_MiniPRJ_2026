@@ -2,18 +2,10 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
-import {
-  updateUser,
-  removeFriend,
-  getFriendProfiles,
-  sendFriendRequest,
-} from "@/lib/firestore/users";
+import { updateUser, removeFriend, getFriendProfiles, sendFriendRequest } from "@/lib/firestore/users";
 import { generateFriendCode } from "@/lib/utils";
 import { FiCopy, FiCheck, FiUsers, FiEye, FiTrash2 } from "react-icons/fi";
-import {
-  FriendWishlistView,
-  FriendProfile,
-} from "@/components/friends/FriendWishlistView";
+import { FriendWishlistView, FriendProfile } from "@/components/friends/FriendWishlistView";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -252,7 +244,7 @@ export default function FriendsPage() {
           </section>
         </div>
 
-        {/* Friend Code Panel (right) */}
+        {/* Friend Code Panel */}
         <aside className="w-full lg:w-[260px] flex-shrink-0 lg:sticky lg:top-[100px] self-start">
           <div className="rounded-[20px] border border-black/10 p-5">
             <h4 className="font-bold text-base mb-1">Your Friend Code</h4>

@@ -348,13 +348,13 @@ export default function ActivitySection() {
                         : "border-black/10 hover:border-black/30",
                     )}
                   >
-                    <input
+                    <input 
                       type="radio"
                       name="acceptAddress"
                       value={addr.id}
                       checked={acceptAddressId === addr.id}
                       onChange={() => setAcceptAddressId(addr.id)}
-                      className="mt-0.5 flex-shrink-0"
+                      className="mt-0.5 flex-shrink-0 accent-black"
                     />
                     <div className="text-sm leading-snug">
                       <p className="font-medium text-black">

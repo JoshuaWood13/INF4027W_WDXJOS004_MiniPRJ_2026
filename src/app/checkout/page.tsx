@@ -291,9 +291,13 @@ function CheckoutContent() {
           status: "pending",
           isGift: true,
           giftRecipientId: giftRecipientUid!,
-          recipientDisplayName: giftRecipientDisplayName ?? undefined,
-          senderDisplayName: appUser?.displayName,
-          giftMessage: giftMessage || undefined,
+          ...(giftRecipientDisplayName
+            ? { recipientDisplayName: giftRecipientDisplayName }
+            : {}),
+          ...(appUser?.displayName
+            ? { senderDisplayName: appUser.displayName }
+            : {}),
+          ...(giftMessage ? { giftMessage } : {}),
           isAutoBuy: false,
         });
 
@@ -333,9 +337,13 @@ function CheckoutContent() {
             status: "pending",
             isGift: true,
             giftRecipientId: giftRecipientUid!,
-            recipientDisplayName: giftRecipientDisplayName ?? undefined,
-            senderDisplayName: appUser?.displayName,
-            giftMessage: giftMessage || undefined,
+            ...(giftRecipientDisplayName
+              ? { recipientDisplayName: giftRecipientDisplayName }
+              : {}),
+            ...(appUser?.displayName
+              ? { senderDisplayName: appUser.displayName }
+              : {}),
+            ...(giftMessage ? { giftMessage } : {}),
             isAutoBuy: false,
           }),
         ]);
