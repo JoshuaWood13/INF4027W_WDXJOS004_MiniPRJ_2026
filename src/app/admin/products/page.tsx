@@ -2,12 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Product, ProductCategory } from "@/types/product.types";
-import {
-  getProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-} from "@/lib/firestore/products";
+import { getProducts, createProduct, updateProduct, deleteProduct } from "@/lib/firestore/products";
 import {
   Table,
   TableBody,
@@ -40,6 +35,7 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 
+// Page size for pagination
 const PAGE_SIZE = 10;
 
 const BRANDS = ["Dell", "Lenovo", "HP", "ASUS", "Apple", "MSI", "Acer"];
@@ -52,6 +48,7 @@ const CATEGORIES: ProductCategory[] = [
 ];
 
 export default function AdminProducts() {
+  // States
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -108,6 +105,7 @@ export default function AdminProducts() {
     setCurrentPage(1);
   }, [products, searchQuery, brandFilter, categoryFilter, minPrice, maxPrice]);
 
+  // Get all products from firestore and apply filters
   async function loadProducts() {
     setLoading(true);
     try {
@@ -161,6 +159,8 @@ export default function AdminProducts() {
     setEditingProduct(null);
   }
 
+  // Handlers for edit, add, delete actions
+  /////////////////////////////////////////////////////////////////////////////
   function handleEditClick(product: Product) {
     setEditingProduct(product);
     setFormOpen(true);
@@ -205,6 +205,7 @@ export default function AdminProducts() {
       setDeleting(false);
     }
   }
+  /////////////////////////////////////////////////////////////////////////////
 
   function clearFilters() {
     setSearchQuery("");

@@ -29,9 +29,11 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 
+// Page size for pagination
 const PAGE_SIZE = 10;
 
 export default function AdminOrders() {
+  // States
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,6 +72,7 @@ export default function AdminOrders() {
     setCurrentPage(1);
   }, [orders, statusFilter, startDate, endDate]);
 
+  // Get all orders from firestore
   async function loadOrders() {
     setLoading(true);
     try {
@@ -83,6 +86,7 @@ export default function AdminOrders() {
     }
   }
 
+  // Triggr order details dialog
   function handleViewDetails(order: Order) {
     setViewingOrder(order);
     setDetailsOpen(true);

@@ -12,9 +12,10 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase (prevent duplicate initialization in dev with HMR)
+// Initialize Firebase 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
+// Firebase services exports
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const ai = getAI(app, { backend: new GoogleAIBackend() });

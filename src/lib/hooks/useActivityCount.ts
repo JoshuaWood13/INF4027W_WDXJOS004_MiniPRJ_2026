@@ -10,7 +10,7 @@ export type ActivityCountResult = {
   loadingGifts: boolean;
 };
 
-/** Returns activity badge count from: friend requests, auto-buy messages, and pending gifts */
+// Returns activity badge count from friend requests, auto-buy messages, and pending gifts
 export function useActivityCount(): ActivityCountResult {
   const { appUser } = useAuth();
   const { pendingGifts, setPendingGifts, loadingGifts } = useActivityContext();

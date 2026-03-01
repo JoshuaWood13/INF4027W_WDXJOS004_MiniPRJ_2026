@@ -1,19 +1,14 @@
 "use client";
 
 import React from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRouter, useSearchParams } from "next/navigation";
 
 type ShopSortSelectProps = {
   currentSort?: string;
 };
 
+// Sort select component for shop page: allows users to sort products by newest, price, or popularity
 const ShopSortSelect = ({ currentSort }: ShopSortSelectProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();

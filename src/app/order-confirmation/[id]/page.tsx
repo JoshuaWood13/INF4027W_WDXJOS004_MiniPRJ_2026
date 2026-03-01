@@ -40,11 +40,12 @@ function OrderConfirmationContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Scroll to top on mount so the confirmation header is always visible
+  // Scroll to top on mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
+  // Fetch order details and validate access
   useEffect(() => {
     if (!orderId || !firebaseUser) return;
 

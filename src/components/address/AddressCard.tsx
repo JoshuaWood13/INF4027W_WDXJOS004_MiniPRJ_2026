@@ -80,7 +80,7 @@ export default function AddressCard({
           </div>
         </div>
 
-        {/* edit/delete */}
+        {/* Edit/delete */}
         <div
           className="flex items-center gap-2 shrink-0 mt-1"
           onClick={(e) => e.stopPropagation()}

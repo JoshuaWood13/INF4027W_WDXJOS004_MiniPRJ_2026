@@ -5,12 +5,7 @@ import Rating from "../ui/Rating";
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types/product.types";
-import {
-  formatPrice,
-  calcDiscountedPrice,
-  calcDiscountPercentage,
-  PLACEHOLDER_IMAGE,
-} from "@/lib/utils";
+import { formatPrice, calcDiscountedPrice, calcDiscountPercentage, PLACEHOLDER_IMAGE } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { addToWishlist, removeFromWishlist } from "@/lib/firestore/users";
 import { FiHeart } from "react-icons/fi";
@@ -66,6 +61,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
     }
   }
 
+  // Render product card with image, name, key specs, rating, price, and wishlist button (if logged in)
   return (
     <div className="flex flex-col items-start aspect-auto relative group">
       {/* Wishlist button */}

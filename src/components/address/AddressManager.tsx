@@ -3,11 +3,7 @@
 import React, { useState } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { SavedAddress } from "@/types/user.types";
-import {
-  addUserAddress,
-  updateUserAddress,
-  deleteUserAddress,
-} from "@/lib/firestore/users";
+import { addUserAddress, updateUserAddress, deleteUserAddress } from "@/lib/firestore/users";
 import AddressCard from "./AddressCard";
 import AddressForm from "./AddressForm";
 import { FiPlus } from "react-icons/fi";
@@ -20,10 +16,10 @@ type View = "cards" | "add" | "edit";
 type AddressManagerProps = {
   selectedId?: string | null;
   onSelect?: (address: SavedAddress | null) => void;
-  /** Defaults to "Delivery Address". */
   heading?: string;
 };
 
+// Component to manage user's saved addresses: list, add, edit, delete
 export default function AddressManager({
   selectedId = null,
   onSelect,

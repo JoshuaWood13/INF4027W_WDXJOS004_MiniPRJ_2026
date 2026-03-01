@@ -56,6 +56,7 @@ function formatMonthLabel(key: string): string {
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Plot chronologically sorted revenue data grouped date ranges based on the selected time filter.
 function buildChartData(
   orders: Order[],
   filter: TimeFilter,
@@ -84,6 +85,7 @@ function buildChartData(
     }));
 }
 
+// Show user friendly tooltip on hover
 function RevenueTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (

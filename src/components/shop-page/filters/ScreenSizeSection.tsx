@@ -13,6 +13,7 @@ const screenSizes = [
   { label: '17"', value: "17" },
 ];
 
+// Screen size filter
 const ScreenSizeSection = () => {
   const router = useRouter();
   const searchParams = useSearchParams();

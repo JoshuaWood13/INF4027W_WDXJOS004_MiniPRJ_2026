@@ -14,7 +14,7 @@ import Link from "next/link";
 
 export default function CartPage() {
   const { cart, totalPrice, adjustedTotalPrice } = useAppSelector(
-    (state: RootState) => state.carts
+    (state: RootState) => state.carts,
   );
 
   return (
@@ -22,7 +22,8 @@ export default function CartPage() {
       <div className="max-w-frame mx-auto px-4 xl:px-0">
         {cart && cart.items.length > 0 ? (
           <>
-            <BreadcrumbCart />
+            {/* Breadcrumb navigation */}
+            <BreadcrumbCart /> 
             <h2
               className={cn([
                 integralCF.className,
@@ -32,6 +33,7 @@ export default function CartPage() {
               your cart
             </h2>
             <div className="flex flex-col lg:flex-row space-y-5 lg:space-y-0 lg:space-x-5 items-start">
+              {/* Cart items list */}
               <div className="w-full p-3.5 md:px-6 flex-col space-y-4 md:space-y-6 rounded-[20px] border border-black/10">
                 {cart?.items.map((product, idx, arr) => (
                   <React.Fragment key={idx}>
@@ -42,6 +44,7 @@ export default function CartPage() {
                   </React.Fragment>
                 ))}
               </div>
+              {/* Order summary panel */}
               <div className="w-full lg:max-w-[505px] p-5 md:px-6 flex-col space-y-4 md:space-y-6 rounded-[20px] border border-black/10">
                 <h6 className="text-xl md:text-2xl font-bold text-black">
                   Order Summary
@@ -55,14 +58,11 @@ export default function CartPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">
-                      Discount (-
-                      {totalPrice > 0
+                      Discount (-{totalPrice > 0
                         ? Math.round(
-                            ((totalPrice - adjustedTotalPrice) / totalPrice) *
-                              100
+                            ((totalPrice - adjustedTotalPrice) / totalPrice) * 100,
                           )
-                        : 0}
-                      %)
+                        : 0}%)
                     </span>
                     <span className="md:text-xl font-bold text-red-600">
                       -{formatPrice(Math.round(totalPrice - adjustedTotalPrice))}
@@ -82,6 +82,7 @@ export default function CartPage() {
                     </span>
                   </div>
                 </div>
+                {/* Checkout button */}
                 <Button
                   type="button"
                   className="text-sm md:text-base font-medium bg-black rounded-full w-full py-4 h-[54px] md:h-[60px] group"
@@ -96,6 +97,7 @@ export default function CartPage() {
             </div>
           </>
         ) : (
+          // Empty cart state
           <div className="flex items-center flex-col text-gray-300 mt-32">
             <TbBasketExclamation strokeWidth={1} className="text-6xl" />
             <span className="block mb-4">Your shopping cart is empty.</span>

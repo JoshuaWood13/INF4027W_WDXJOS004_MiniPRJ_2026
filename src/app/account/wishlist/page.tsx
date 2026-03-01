@@ -31,7 +31,6 @@ export default function WishlistPage() {
         setLoading(false);
         return;
       }
-
       try {
         const wishlistProducts = await getProductsByIds(appUser.wishlist);
         setProducts(wishlistProducts);
@@ -50,6 +49,7 @@ export default function WishlistPage() {
 
     setRemovingId(productId);
     try {
+      // Remove from firestore
       await removeFromWishlist(firebaseUser.uid, productId);
       await refreshAppUser();
       showSuccessToast("Removed from wishlist!");
@@ -66,6 +66,7 @@ export default function WishlistPage() {
     if (!firebaseUser) return;
     setRemovingWatcherId(watcher.productId);
     try {
+      // Remove from firestore
       await removePriceWatcher(firebaseUser.uid, watcher);
       await refreshAppUser();
       showSuccessToast("Price watcher removed!");
@@ -82,7 +83,7 @@ export default function WishlistPage() {
       product.specs.ram,
       product.specs.storage,
     ];
-
+    // Add product to Redux cart
     dispatch(
       addToCart({
         id: product.id,

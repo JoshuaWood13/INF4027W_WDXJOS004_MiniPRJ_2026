@@ -16,6 +16,7 @@ const specItems = [
   { key: "gpu" as const, icon: MdMonitor, label: "GPU" },
 ];
 
+// Displays key specifications of a laptop
 const SpecsDisplay = ({ specs }: SpecsDisplayProps) => {
   return (
     <div className="flex flex-col mb-5">

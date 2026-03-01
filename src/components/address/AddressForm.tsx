@@ -23,6 +23,7 @@ const SA_PROVINCES = [
   "Western Cape",
 ] as const;
 
+// Used for adding/editing addresses in the address form
 type AddressFormFields = {
   addressType: AddressType;
   street: string;
@@ -32,6 +33,7 @@ type AddressFormFields = {
   postalCode: string;
 };
 
+// Form validation errors, keyed by field name
 type FormErrors = Partial<Record<keyof AddressFormFields, string>>;
 
 type AddressFormProps = {
@@ -40,8 +42,8 @@ type AddressFormProps = {
   onCancel: () => void;
 };
 
+// Shared styles
 const inputClass = "w-full border border-black/10 rounded-full py-3 px-4 text-sm outline-none focus:border-black/30 focus:ring-1 focus:ring-black/10 transition-colors bg-[#F0F0F0]";
-
 const labelClass = "block text-sm font-medium mb-1.5";
 
 function generateId(): string {

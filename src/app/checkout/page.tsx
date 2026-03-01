@@ -17,10 +17,7 @@ import AddressManager from "@/components/address/AddressManager";
 import { SavedAddress } from "@/types/user.types";
 import { PaymentType } from "@/types/order.types";
 import { createOrder } from "@/lib/firestore/orders";
-import {
-  incrementSalesCount,
-  getProductsByIds,
-} from "@/lib/firestore/products";
+import { incrementSalesCount, getProductsByIds } from "@/lib/firestore/products";
 import { saveUserCart, getFriendProfiles } from "@/lib/firestore/users";
 import GiftDetailsStep from "@/components/checkout/GiftDetailsStep";
 import {

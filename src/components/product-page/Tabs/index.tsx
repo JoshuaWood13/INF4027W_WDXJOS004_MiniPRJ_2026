@@ -28,6 +28,7 @@ const tabBtnData: TabBtn[] = [
   },
 ];
 
+// Content tabs for the product details page
 const Tabs = ({ product }: { product: Product }) => {
   const [active, setActive] = useState<number>(1);
 

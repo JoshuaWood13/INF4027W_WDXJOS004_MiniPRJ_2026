@@ -48,14 +48,14 @@ export type AppUser = {
   createdAt: Date;
 };
 
-/** A friend request received by the current user */
+// A friend request received by the current user
 export type IncomingRequest = {
   fromUid: string;
   fromDisplayName: string;
   sentAt: Date;
 };
 
-/** A friend request sent by the current user */
+// A friend request sent by the current user 
 export type OutgoingRequest = {
   toUid: string;
   sentAt: Date;

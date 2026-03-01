@@ -16,41 +16,41 @@ import { AppUser } from "@/types/user.types";
 import { getUserByUid, createUser } from "@/lib/firestore/users";
 import { generateFriendCode } from "@/lib/utils";
 
-// ---------- Types ----------
+// Types
 
 type AuthState = {
-  /** Firebase Auth user (null if not signed in) */
+  // Firebase Auth user
   firebaseUser: User | null;
-  /** Firestore user profile (null if not signed in or still loading) */
+  // Firestore user profile
   appUser: AppUser | null;
-  /** True while the initial auth state is being resolved */
+  // True while the initial auth state is being resolved
   loading: boolean;
 };
 
 type AuthActions = {
-  /** Create account with email/password, then create Firestore user doc */
+  // Create account with email/password, then create firestore user doc
   signUp: (
     email: string,
     password: string,
     displayName: string,
   ) => Promise<void>;
-  /** Sign in with email/password */
+  // Sign in with email/password
   signIn: (email: string, password: string) => Promise<void>;
-  /** Sign in with Google popup (creates Firestore doc on first login) */
+  // Sign in with Google 
   signInWithGoogle: () => Promise<void>;
-  /** Sign out */
+  // Sign out
   signOut: () => Promise<void>;
-  /** Re-fetch the Firestore user profile (e.g. after profile update) */
+  // Re-fetch the firestore user profile (for updates)
   refreshAppUser: () => Promise<void>;
 };
 
-type AuthContextValue = AuthState & AuthActions;
+// Context
 
-// ---------- Context ----------
+type AuthContextValue = AuthState & AuthActions;
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-// ---------- Provider ----------
+// Provider
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  // ---------- Actions ----------
+  // Operations
 
   async function signUp(
     email: string,
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set displayName on Firebase Auth profile
     await updateProfile(credential.user, { displayName });
 
-    // Create Firestore user document
+    // Create firestore user document
     await createUser({
       uid: credential.user.uid,
       email: credential.user.email!,
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       friendCode: generateFriendCode(),
     });
 
-    // Fetch the newly created Firestore profile
+    // Fetch the created firestore profile
     const profile = await fetchAppUser(credential.user.uid);
     setAppUser(profile);
   }
@@ -128,11 +128,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const credential = await signInWithPopup(auth, googleProvider);
     const user = credential.user;
 
-    // Check if Firestore user doc already exists (returning user)
+    // Check if Firestore user doc already exists
     let profile = await fetchAppUser(user.uid);
 
     if (!profile) {
-      // First-time Google sign-in — create Firestore user doc
+      // First-time Google sign in creates firestore user doc
       await createUser({
         uid: user.uid,
         email: user.email!,
@@ -157,8 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // ---------- Value ----------
-
+  // Value
   const value: AuthContextValue = {
     firebaseUser,
     appUser,
@@ -173,8 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// ---------- Hook ----------
-
+// Hook 
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
   if (context === undefined) {

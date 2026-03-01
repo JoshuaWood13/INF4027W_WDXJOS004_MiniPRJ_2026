@@ -14,19 +14,18 @@ import { getUserCart, saveUserCart } from "@/lib/firestore/users";
  * - While logged in: saves Redux cart to Firestore on changes (debounced).
  * - Saves are blocked until the initial Firestore load completes, preventing
  *   the guest cart from overwriting the user's saved cart before merge.
- * - Renders nothing — just runs side effects.
  */
 export default function CartSync() {
   const { firebaseUser, loading: authLoading } = useAuth();
   const { cart } = useAppSelector((state: RootState) => state.carts);
   const dispatch = useAppDispatch();
 
-  // Track whether we've loaded the Firestore cart for the current user
+  // Track whether loaded the Firestore cart for the current user
   const loadedUidRef = useRef<string | null>(null);
   // Block saves until the initial Firestore load has completed + merged
   const initialLoadDoneRef = useRef(false);
 
-  // --- Load from Firestore on login ---
+  // Load from firestore on login
   useEffect(() => {
     if (authLoading) return;
     if (!firebaseUser) {
@@ -58,13 +57,11 @@ export default function CartSync() {
     loadCart();
   }, [authLoading, firebaseUser, dispatch]);
 
-  // --- Save to Firestore on cart changes (debounced) ---
+  // Save to firestore on cart changes
   useEffect(() => {
     if (authLoading || !firebaseUser) return;
 
-    // Don't save until the initial Firestore load is complete.
-    // This prevents the local guest cart from overwriting the user's
-    // saved Firestore cart before the merge has happened.
+    // Prevent local guest cart from overwriting saved firestore cart before the merge has happened.
     if (!initialLoadDoneRef.current) return;
 
     const timeout = setTimeout(() => {

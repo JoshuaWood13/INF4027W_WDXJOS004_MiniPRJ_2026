@@ -35,6 +35,7 @@ function AccountShell({ children }: { children: React.ReactNode }) {
   const { appUser, signOut } = useAuth();
   const { count } = useActivityCount();
 
+  // Log out user 
   async function handleSignOut() {
     dispatch(clearCart());
     await signOut();
@@ -42,6 +43,7 @@ function AccountShell({ children }: { children: React.ReactNode }) {
     showSuccessToast("Logged out successfully!");
   }
 
+  // Determine which sub-menu item is active based on current path
   function isActive(href: string) {
     if (href === "/account") return pathname === "/account";
     return pathname.startsWith(href);
@@ -160,6 +162,7 @@ function AccountShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Wrap all account pages to protect them
 export default function AccountLayout({
   children,
 }: {

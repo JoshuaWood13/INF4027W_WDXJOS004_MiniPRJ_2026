@@ -14,6 +14,7 @@ const categories = [
   { title: "Workstation", value: "workstation" },
 ];
 
+// Category filter
 const CategoriesSection = () => {
   const router = useRouter();
   const searchParams = useSearchParams();

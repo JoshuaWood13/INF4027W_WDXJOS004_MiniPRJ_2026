@@ -11,7 +11,6 @@ import { Product } from "@/types/product.types";
 import { addToCart } from "@/lib/features/carts/cartsSlice";
 import { useAppDispatch } from "@/lib/hooks/redux";
 
-// Types
 export type FriendProfile = { uid: string; displayName: string };
 
 export function FriendWishlistView({
@@ -45,6 +44,7 @@ export function FriendWishlistView({
     load();
   }, [friend.uid]);
 
+  // Add a product from a friend's wishlist to a users cart
   function handleAddToCart(product: Product) {
     const specsSummary = [
       product.specs.processor.split(" ").slice(0, 3).join(" "),

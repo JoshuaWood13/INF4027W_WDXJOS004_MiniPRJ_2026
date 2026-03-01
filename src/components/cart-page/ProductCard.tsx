@@ -32,6 +32,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
 
   return (
     <div className="flex items-start space-x-4">
+      {/* Product thumbnail */}
       <Link
         href={`/shop/product/${data.id}/${data.name.split(" ").join("-")}`}
         className="bg-[#F0EEED] rounded-lg w-full min-w-[100px] max-w-[100px] sm:max-w-[124px] aspect-square overflow-hidden"
@@ -45,7 +46,9 @@ const ProductCard = ({ data }: ProductCardProps) => {
           priority
         />
       </Link>
+      {/* Product details column */}
       <div className="flex w-full self-stretch flex-col">
+        {/* Name + delete button */}
         <div className="flex items-center justify-between">
           <Link
             href={`/shop/product/${data.id}/${data.name.split(" ").join("-")}`}
@@ -70,7 +73,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
             <PiTrashFill className="text-xl md:text-2xl text-red-600" />
           </Button>
         </div>
-        {/* Show specs summary instead of size/color */}
+        {/* Specs summary */}
         <div className="-mt-1 mb-1">
           <span className="text-black/60 text-xs md:text-sm">
             {data.attributes.join(" | ")}
@@ -95,7 +98,9 @@ const ProductCard = ({ data }: ProductCardProps) => {
             <option value="gift">Gift</option>
           </select>
         </div>
+        {/* Price + quantity counter */}
         <div className="flex items-center flex-wrap justify-between">
+          {/* Discounted price display */}
           <div className="flex items-center space-x-[5px] xl:space-x-2.5">
             <span className="font-bold text-black text-xl xl:text-2xl">
               {formatPrice(discountedPrice)}

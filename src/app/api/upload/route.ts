@@ -3,6 +3,7 @@ import { writeFile, access, unlink } from "fs/promises";
 import { constants } from "fs";
 import path from "path";
 
+// Handle image uploads for product
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -32,11 +33,11 @@ export async function POST(request: NextRequest) {
     // Save to public/images/laptops
     const publicDir = path.join(process.cwd(), "public", "images", "laptops");
 
-    // Check for duplicates and increment if dup
     let filename = originalName;
     let counter = 1;
     let filePath = path.join(publicDir, filename);
 
+    // Check for duplicates file names and increment if necessary)
     while (true) {
       try {
         await access(filePath, constants.F_OK);
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     await writeFile(filePath, buffer);
 
-    // Return public URL path
+    // Return URL path
     const imageUrl = `/images/laptops/${filename}`;
 
     return NextResponse.json({ url: imageUrl });
@@ -64,6 +65,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Handle image deletion for product
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

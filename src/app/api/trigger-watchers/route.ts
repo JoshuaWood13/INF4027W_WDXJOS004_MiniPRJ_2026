@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Timestamp } from "firebase/firestore";
 import { createOrder } from "@/lib/firestore/orders";
-import {
-  getUsersWithProductWatcher,
-  removePriceWatcher,
-  addAutoBuyMessage,
-} from "@/lib/firestore/users";
+import { getUsersWithProductWatcher, removePriceWatcher, addAutoBuyMessage } from "@/lib/firestore/users";
 import { calcDiscountedPrice } from "@/lib/utils";
 import { Discount } from "@/types/product.types";
 
+// Type to pass required data for triggering watchers when a product price changes
 type TriggerBody = {
   productId: string;
   productName: string;
@@ -16,6 +13,7 @@ type TriggerBody = {
   newDiscount: Discount;
 };
 
+// Auto-buy product, removes the watcher, and add an activity message when a watcher's target price is met (Called when admin updates product a product's price)
 export async function POST(request: NextRequest) {
   try {
     const body: TriggerBody = await request.json();

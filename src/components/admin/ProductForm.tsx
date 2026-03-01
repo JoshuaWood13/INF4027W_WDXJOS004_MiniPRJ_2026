@@ -18,6 +18,7 @@ type ProductFormProps = {
   onSave: (data: ProductFormData) => Promise<void>;
 };
 
+// Data structure for creating/editing a product (emulates Product type)
 export type ProductFormData = {
   name: string;
   brand: string;
@@ -52,7 +53,6 @@ const CATEGORIES: ProductCategory[] = [
   "student",
   "workstation",
 ];
-
 const BRANDS = ["Dell", "Lenovo", "HP", "ASUS", "Apple", "MSI", "Acer"];
 
 export default function ProductForm({
@@ -61,11 +61,14 @@ export default function ProductForm({
   product,
   onSave,
 }: ProductFormProps) {
+  // States
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [initialData, setInitialData] = useState<string>("");
-  const [discountType, setDiscountType] = useState<"amount" | "percentage">("amount");
+  const [discountType, setDiscountType] = useState<"amount" | "percentage">(
+    "amount",
+  );
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
     brand: "",
@@ -199,6 +202,7 @@ export default function ProductForm({
     }
   }
 
+  // Helper to update form fields
   function updateField<K extends keyof ProductFormData>(
     field: K,
     value: ProductFormData[K],
@@ -206,6 +210,7 @@ export default function ProductForm({
     setFormData((prev) => ({ ...prev, [field]: value }));
   }
 
+  // Helper to update specs fields
   function updateSpec(field: keyof ProductFormData["specs"], value: string) {
     setFormData((prev) => ({
       ...prev,
@@ -279,6 +284,7 @@ export default function ProductForm({
           <div className="space-y-4">
             <h3 className="font-semibold text-sm">Basic Information</h3>
 
+            {/* Product Name */}
             <div>
               <label className="block text-sm font-medium mb-1">
                 Product Name <span className="text-red-500">*</span>
@@ -293,6 +299,7 @@ export default function ProductForm({
               />
             </div>
 
+            {/* Brand + Category */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -334,6 +341,7 @@ export default function ProductForm({
               </div>
             </div>
 
+            {/* Price + Cost */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -379,6 +387,7 @@ export default function ProductForm({
           <div className="space-y-4">
             <h3 className="font-semibold text-sm">Specifications</h3>
 
+            {/* Processor + RAM + Storage + GPU + Screen Size + Display + OS + Weight */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -498,6 +507,7 @@ export default function ProductForm({
           <div className="space-y-4">
             <h3 className="font-semibold text-sm">Details</h3>
 
+            {/* Description */}
             <div>
               <label className="block text-sm font-medium mb-1">
                 Description <span className="text-red-500">*</span>
@@ -512,6 +522,7 @@ export default function ProductForm({
               />
             </div>
 
+            {/* Product Image */}
             <div>
               <label className="block text-sm font-medium mb-1">
                 Product Image
@@ -539,6 +550,7 @@ export default function ProductForm({
               )}
             </div>
 
+            {/* Tags */}
             <div>
               <label className="block text-sm font-medium mb-1">
                 Tags (comma-separated)
@@ -562,6 +574,7 @@ export default function ProductForm({
           <div className="space-y-4">
             <h3 className="font-semibold text-sm">Pricing & Promotion</h3>
 
+            {/* Discount input (fixed amount or percentage) */}
             <div>
               <label className="block text-sm font-medium mb-1">Discount</label>
               <div className="flex">
@@ -635,6 +648,7 @@ export default function ProductForm({
               )}
             </div>
 
+            {/* Featured + On Sale checkboxes */}
             <div className="flex gap-6">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -658,6 +672,7 @@ export default function ProductForm({
             </div>
           </div>
 
+          {/* Cancel + Submit actions */}
           <DialogFooter>
             <Button
               type="button"

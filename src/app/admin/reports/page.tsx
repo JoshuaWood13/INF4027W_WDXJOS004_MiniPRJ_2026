@@ -20,6 +20,7 @@ export default function AdminReports() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch all orders on mount for use in reports
   useEffect(() => {
     getAllOrders().then((data) => {
       setOrders(data);

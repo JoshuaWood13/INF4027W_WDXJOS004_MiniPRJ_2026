@@ -1,4 +1,4 @@
-// Skeleton loading component for the shop page when product data is being fetched
+// Used Claude to generate a skeleton loading component for the shop page when product data is being fetched from server.
 export default function ShopLoading() {
   return (
     <main className="pb-20">

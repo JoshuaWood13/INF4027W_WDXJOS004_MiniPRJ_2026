@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 const MIN_PRICE = 0;
 const MAX_PRICE = 80000;
 
+// Price filter
 const PriceSection = () => {
   const router = useRouter();
   const searchParams = useSearchParams();

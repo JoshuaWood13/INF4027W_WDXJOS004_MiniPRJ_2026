@@ -13,6 +13,7 @@ type Props = {
   children: React.ReactNode;
 };
 
+// Provider component to wrap whole app with Redux store, auth context, and activity context
 const Providers = ({ children }: Props) => {
   const [{ store, persistor }] = React.useState(() => makeStore());
 

@@ -7,6 +7,7 @@ import Link from "next/link";
 import React from "react";
 import * as motion from "framer-motion/client";
 
+// Hero section
 const Header = () => {
   return (
     <header className="bg-[#F2F0F1] pt-10 md:pt-24 overflow-hidden">

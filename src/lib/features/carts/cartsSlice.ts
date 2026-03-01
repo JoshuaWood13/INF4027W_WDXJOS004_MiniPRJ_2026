@@ -3,6 +3,8 @@ import { Discount } from "@/types/product.types";
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
+// This file defines the Redux slice for managing the shopping cart state, including actions for adding/removing items, clearing the cart, and merging items from Firestore on login. It also calculates total price and adjusted total price based on discounts.
+
 const calcAdjustedTotalPrice = (
   totalPrice: number,
   data: CartItem,
@@ -125,6 +127,7 @@ export const cartsSlice = createSlice({
     removeCartItem: (state, action: PayloadAction<RemoveCartItem>) => {
       if (state.cart === null) return;
 
+      // check item in cart
       const isItemInCart = state.cart.items.find(
         (item) =>
           action.payload.id === item.id &&
@@ -167,6 +170,7 @@ export const cartsSlice = createSlice({
     ) => {
       if (!state.cart) return;
 
+      // check item in cart
       const isItemInCart = state.cart.items.find(
         (item) =>
           action.payload.id === item.id &&
@@ -194,14 +198,17 @@ export const cartsSlice = createSlice({
           isItemInCart.quantity,
         );
     },
-    /** Clear the entire cart (used after checkout or manual clear) */
+
+    // FIREBASE INTEGRATION + EXTENSION
+
+    // Clear the entire cart (used after checkout or manual clear)
     clearCart: (state) => {
       state.cart = null;
       state.totalPrice = 0;
       state.adjustedTotalPrice = 0;
       state.action = null;
     },
-    /** Update the itemType of a specific cart item in-place */
+    // Update the itemType of a specific cart item in-place
     setCartItemType: (
       state,
       action: PayloadAction<{
@@ -220,7 +227,7 @@ export const cartsSlice = createSlice({
         item.itemType = action.payload.itemType;
       }
     },
-    /** Merge items from Firestore into the current cart (used on login) */
+    // Merge items from Firestore into the current cart (used on login)
     mergeCartItems: (state, action: PayloadAction<CartItem[]>) => {
       const incomingItems = action.payload.map((item) => ({
         ...item,
@@ -228,7 +235,7 @@ export const cartsSlice = createSlice({
       }));
       if (incomingItems.length === 0) return;
 
-      // If cart is empty, set it directly
+      // If cart is empty, set directly
       if (!state.cart || state.cart.items.length === 0) {
         let totalQty = 0;
         let totalP = 0;

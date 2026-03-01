@@ -9,6 +9,7 @@ import {
 import { FiSliders } from "react-icons/fi";
 import Filters from ".";
 
+// Mobile filters drawer (only visible on small screens)
 const MobileFilters = () => {
   return (
     <>

@@ -11,6 +11,7 @@ const statuses = [
   { title: "Featured", param: "featured" },
 ];
 
+// Status filter (On Sale, Featured)
 const StatusSection = () => {
   const router = useRouter();
   const searchParams = useSearchParams();

@@ -27,7 +27,7 @@ const AISearchPanel = ({ onClose }: Props) => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle selecting / dropping an image file
+  // Handle uploaded image file
   const handleImageFile = useCallback((file: File) => {
     if (!file.type.startsWith("image/")) {
       setImageError("Please upload an image file (JPG, PNG, WEBP).");
@@ -59,6 +59,7 @@ const AISearchPanel = ({ onClose }: Props) => {
     setTextError(null);
 
     try {
+      // Fetch all products and run AI text search
       const products = await getProducts();
       const ids = await runTextSearch(query, products);
 
@@ -87,6 +88,7 @@ const AISearchPanel = ({ onClose }: Props) => {
     setImageError(null);
 
     try {
+      // Fetch all products and run AI image search
       const products = await getProducts();
       const ids = await runImageSearch(imageFile, products);
 

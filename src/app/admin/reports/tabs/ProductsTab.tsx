@@ -49,6 +49,7 @@ function KpiCard({
   );
 }
 
+// Ranked table card for top products by sales and views
 function RankedTableCard({
   title,
   rows,
@@ -95,7 +96,7 @@ function RankedTableCard({
 }
 /////////////////////////////////////////////////////////////////////////////////
 
-// Tooltips
+// Informative tooltips for chart hovers
 /////////////////////////////////////////////////////////////////////////////////
 function BarTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
@@ -198,7 +199,7 @@ export default function ProductsTab() {
     [categoryRevenueMap],
   );
 
-  // Bar: top 5 best-selling — views vs purchases with conversion
+  // Bar: top 5 best-selling (views vs purchases )
   const barData = useMemo(
     () =>
       top5BySales.map((p) => {

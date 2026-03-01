@@ -7,6 +7,7 @@ import Rating from "@/components/ui/Rating";
 import SpecsDisplay from "./SpecsDisplay";
 import AddToCardSection from "./AddToCardSection";
 
+// Product details header section
 const Header = ({ data }: { data: Product }) => {
   const discountedPrice = calcDiscountedPrice(data.price, data.discount);
   const hasDiscount = data.discount.percentage > 0 || data.discount.amount > 0;

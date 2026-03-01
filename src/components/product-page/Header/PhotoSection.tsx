@@ -5,6 +5,7 @@ import { PLACEHOLDER_IMAGE } from "@/lib/utils";
 import Image from "next/image";
 import React, { useState } from "react";
 
+// Photo section of the product details page
 const PhotoSection = ({ data }: { data: Product }) => {
   const images = data.images?.length > 0 ? data.images : [PLACEHOLDER_IMAGE];
   const [selected, setSelected] = useState<string>(images[0]);

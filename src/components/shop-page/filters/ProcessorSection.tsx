@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const processors = ["Intel", "AMD", "Apple"];
 
+// Processor filter
 const ProcessorSection = () => {
   const router = useRouter();
   const searchParams = useSearchParams();

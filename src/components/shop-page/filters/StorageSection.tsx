@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const storageOptions = ["256GB", "512GB", "1TB", "2TB"];
 
+// Storage filter
 const StorageSection = () => {
   const router = useRouter();
   const searchParams = useSearchParams();

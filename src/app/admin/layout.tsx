@@ -9,12 +9,7 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { useAppDispatch } from "@/lib/hooks/redux";
 import { clearCart } from "@/lib/features/carts/cartsSlice";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import {
-  FiPackage,
-  FiShoppingBag,
-  FiBarChart2,
-  FiLogOut,
-} from "react-icons/fi";
+import { FiPackage, FiShoppingBag, FiBarChart2, FiLogOut } from "react-icons/fi";
 import { showSuccessToast } from "@/components/ui/SuccessToast";
 
 const NAV_ITEMS = [
@@ -23,6 +18,7 @@ const NAV_ITEMS = [
   { href: "/admin/reports", label: "Reports", icon: FiBarChart2 },
 ] as const;
 
+// Shell with sidebar navigation for admin pages
 function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();

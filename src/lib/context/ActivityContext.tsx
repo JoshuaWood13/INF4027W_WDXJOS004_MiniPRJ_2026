@@ -1,18 +1,11 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  Dispatch,
-  SetStateAction,
-} from "react";
+import React, { createContext, useContext, useEffect, useState, Dispatch, SetStateAction } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { getGiftOrdersForRecipient } from "@/lib/firestore/orders";
 import { Order } from "@/types/order.types";
 
-// Context to share pending activity across the app
+// Context for sharing pending activity across the app
 type ActivityContextValue = {
   pendingGifts: Order[];
   setPendingGifts: Dispatch<SetStateAction<Order[]>>;

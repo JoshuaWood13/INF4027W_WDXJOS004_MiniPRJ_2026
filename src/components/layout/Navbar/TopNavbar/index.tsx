@@ -146,7 +146,7 @@ const TopNavbar = () => {
     showSuccessToast("Logged out successfully!");
   }
 
-  //Update search query for back/forward navigation
+  // Update search query for back/forward navigation
   useEffect(() => {
     const search = searchParams.get("search") || "";
     setSearchQuery(search);

@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const ramOptions = ["8GB", "16GB", "18GB", "32GB", "48GB", "64GB"];
 
+// RAM filter
 const RamSection = () => {
   const router = useRouter();
   const searchParams = useSearchParams();

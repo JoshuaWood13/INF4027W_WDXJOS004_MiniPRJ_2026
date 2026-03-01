@@ -37,7 +37,7 @@ export function calcDiscountedPrice(price: number, discount: Discount): number {
   return price;
 }
 
-/** Calculate the effective discount percentage (works for both percentage and fixed amount discounts) */
+/** Calculate the effective discount percentage (for both percentage and fixed amount discounts) */
 export function calcDiscountPercentage(
   price: number,
   discount: Discount,

@@ -1,5 +1,6 @@
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 
+// Legacy fallback
 const createNoopStorage = () => {
   return {
     getItem(_key: any) {

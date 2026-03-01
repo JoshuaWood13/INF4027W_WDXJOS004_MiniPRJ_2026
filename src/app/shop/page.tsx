@@ -151,16 +151,23 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   if (onSale) titleParts.push("On Sale");
   if (featured) titleParts.push("Featured");
   if (categories.length > 0)
-    titleParts.push(categories.length === 1 ? categories[0].charAt(0).toUpperCase() + categories[0].slice(1) : "Multiple Categories");
+    titleParts.push(
+      categories.length === 1
+        ? categories[0].charAt(0).toUpperCase() + categories[0].slice(1)
+        : "Multiple Categories",
+    );
   const pageTitle =
     titleParts.length > 0 ? titleParts.join(" — ") : "All Laptops";
 
+  // Render
   return (
     <main className="pb-20">
       <div className="max-w-frame mx-auto px-4 xl:px-0">
         <hr className="h-[1px] border-t-black/10 mb-5 sm:mb-6" />
+        {/* Breadcrumb navigation */}
         <BreadcrumbShop />
         <div className="flex md:space-x-5 items-start">
+          {/* Desktop sidebar filters */}
           <div className="hidden md:block min-w-[295px] max-w-[295px] border border-black/10 rounded-[20px] px-5 md:px-6 py-5 space-y-5 md:space-y-6">
             <Suspense
               fallback={
@@ -174,6 +181,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           </div>
           <div className="flex flex-col w-full space-y-5">
             <div className="flex flex-col lg:flex-row lg:justify-between">
+              {/* Title + mobile filters toggle */}
               <div className="flex items-center justify-between">
                 <h1 className="font-bold text-2xl md:text-[32px]">
                   {pageTitle}
@@ -182,6 +190,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                   <MobileFilters />
                 </Suspense>
               </div>
+              {/* Product count + sort dropdown */}
               <div className="flex flex-col sm:items-center sm:flex-row">
                 <span className="text-sm md:text-base text-black/60 mr-3">
                   Showing {products.length}{" "}
@@ -192,14 +201,17 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                 </Suspense>
               </div>
             </div>
+            {/* Active filter tags */}
             <Suspense>
               <FilterTags />
             </Suspense>
+            {/* Product grid */}
             <div className="w-full grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
               {products.map((product) => (
                 <ProductCard key={product.id} data={product} />
               ))}
             </div>
+            {/* Empty state */}
             {products.length === 0 && (
               <div className="text-center py-20 text-black/40">
                 <p className="text-xl mb-2">No laptops found</p>

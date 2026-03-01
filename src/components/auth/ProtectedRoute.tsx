@@ -7,16 +7,15 @@ import SpinnerbLoader from "@/components/ui/SpinnerbLoader";
 
 type ProtectedRouteProps = {
   children: React.ReactNode;
-  /** If true, only users with role "admin" can access */
+  // If true, only admin users can access
   adminOnly?: boolean;
 };
 
 /**
  * Client-side route guard.
  *
- * - Shows a loading spinner while auth state is resolving.
- * - Redirects unauthenticated users to /auth/login?redirect=<current path>.
- * - If `adminOnly` is true, redirects non-admin users to /.
+ * - Redirects unauthenticated users to login page.
+ * - If `adminOnly` is true, redirects non-admin users to home page.
  */
 export default function ProtectedRoute({
   children,

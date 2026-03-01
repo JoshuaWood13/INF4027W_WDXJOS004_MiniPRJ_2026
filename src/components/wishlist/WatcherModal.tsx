@@ -20,6 +20,14 @@ type WatcherModalProps = {
   onSaved: () => void;
 };
 
+/** Modal for setting/editing a price watcher on a product. 
+ * 
+ *   Allows user to specify:
+ *   - target price
+ *   - delivery address
+ *   - payment method. 
+ *   
+ * Validates input and saves to firestore */
 export default function WatcherModal({
   product,
   existingWatcher,

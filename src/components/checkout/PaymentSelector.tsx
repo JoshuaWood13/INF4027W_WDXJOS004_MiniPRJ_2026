@@ -40,6 +40,7 @@ type PaymentSelectorProps = {
   onSelect: (type: PaymentType) => void;
 };
 
+// Renders simulated payment method options and allows selection
 export default function PaymentSelector({
   selected,
   onSelect,

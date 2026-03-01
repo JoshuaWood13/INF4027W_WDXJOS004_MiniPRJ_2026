@@ -1,6 +1,8 @@
 import { aiModel } from "@/lib/firebase";
 import { Product } from "@/types/product.types";
 
+// This file contains all AI prompts used for AI searches
+
 // Prompt helpers
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Build a compact product catalog
@@ -78,7 +80,7 @@ ${JSON.stringify(catalog, null, 2)}
 
 Analyse the uploaded image for: form factor, build quality, target use case (gaming, ultrabook, etc.), visible branding or model cues, display size estimate, and any visible specs.
 
-Return ONLY a JSON array of product IDs ranked from most similar to least similar. If nothing is similar, return an empty array.
+Return ONLY a JSON array of product IDs ranked from most similar to least similar. If the image is not a laptop, return an empty array.
 
 Respond with ONLY the JSON array. Example: ["id1", "id2", "id3"]`;
 

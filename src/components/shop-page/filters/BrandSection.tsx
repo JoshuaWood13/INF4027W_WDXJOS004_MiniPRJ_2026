@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const brands = ["Dell", "Lenovo", "HP", "ASUS", "Apple", "MSI", "Acer"];
 
-/** Brand filter — replaces the old Colors filter */
+// Brand filter
 const BrandSection = () => {
   const router = useRouter();
   const searchParams = useSearchParams();

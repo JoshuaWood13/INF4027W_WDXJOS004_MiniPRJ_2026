@@ -6,6 +6,7 @@ import { useAppSelector } from "@/lib/hooks/redux";
 import { RootState } from "@/lib/store";
 import { formatPrice, calcDiscountedPrice, calcDiscountPercentage } from "@/lib/utils";
 
+// Displays a summary of the current cart contents and pricing breakdown
 export default function OrderSummary() {
   const { cart, totalPrice, adjustedTotalPrice } = useAppSelector(
     (state: RootState) => state.carts

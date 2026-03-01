@@ -2,11 +2,7 @@ import React from "react";
 import * as motion from "framer-motion/client";
 import { cn } from "@/lib/utils";
 import { integralCF } from "@/styles/fonts";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import ProductCard from "./ProductCard";
 import { Product } from "@/types/product.types";
 import Link from "next/link";
@@ -17,6 +13,7 @@ type ProductListSecProps = {
   viewAllLink?: string;
 };
 
+// displays a list of products in a carousel format, with an optional "View All" link
 const ProductListSec = ({ title, data, viewAllLink }: ProductListSecProps) => {
   return (
     <section className="max-w-frame mx-auto text-center">
