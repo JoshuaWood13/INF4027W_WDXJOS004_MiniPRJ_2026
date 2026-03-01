@@ -1,6 +1,6 @@
 # LaptopWRLD — Laptop E-Commerce Platform
 
-**UCT Username:** WDXJOS004
+**UCT Student Number:** WDXJOS004
 
 ## Deployed Site
 
