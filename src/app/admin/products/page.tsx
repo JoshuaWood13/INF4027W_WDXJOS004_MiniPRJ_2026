@@ -2,7 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Product, ProductCategory } from "@/types/product.types";
-import { getProducts, createProduct, updateProduct, deleteProduct } from "@/lib/firestore/products";
+import {
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from "@/lib/firestore/products";
+import { calcDiscountedPrice, formatPrice } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -373,7 +379,25 @@ export default function AdminProducts() {
                       {product.category.charAt(0).toUpperCase() +
                         product.category.slice(1)}
                     </TableCell>
-                    <TableCell>R {product.price.toLocaleString()}</TableCell>
+                    <TableCell>
+                      {product.onSale ? (
+                        <span>
+                          <span className="text-red-600 font-medium">
+                            {formatPrice(
+                              calcDiscountedPrice(
+                                product.price,
+                                product.discount,
+                              ),
+                            )}
+                          </span>
+                          <span className="text-black/40 line-through ml-1.5 text-xs">
+                            {formatPrice(product.price)}
+                          </span>
+                        </span>
+                      ) : (
+                        formatPrice(product.price)
+                      )}
+                    </TableCell>
                     <TableCell>R {product.cost.toLocaleString()}</TableCell>
                     <TableCell>
                       <span

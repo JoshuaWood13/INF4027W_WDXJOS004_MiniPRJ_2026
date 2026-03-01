@@ -3,9 +3,19 @@
 import React, { useState } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { useActivityContext } from "@/lib/context/ActivityContext";
-import { acceptFriendRequest, declineFriendRequest, removeAutoBuyMessage } from "@/lib/firestore/users";
+import {
+  acceptFriendRequest,
+  declineFriendRequest,
+  removeAutoBuyMessage,
+} from "@/lib/firestore/users";
 import { updateOrderStatus, updateOrder } from "@/lib/firestore/orders";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,18 +29,27 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Order } from "@/types/order.types";
 import Image from "next/image";
-import { FiCheck, FiShoppingBag, FiUserPlus } from "react-icons/fi";
+import {
+  FiCheck,
+  FiRefreshCw,
+  FiShoppingBag,
+  FiUserPlus,
+} from "react-icons/fi";
 import Link from "next/link";
 import { formatPrice, PLACEHOLDER_IMAGE, cn } from "@/lib/utils";
 import { showSuccessToast } from "../ui/SuccessToast";
 
 export default function ActivitySection() {
   const { appUser, firebaseUser, refreshAppUser } = useAuth();
-  const { pendingGifts, setPendingGifts, loadingGifts } = useActivityContext();
+  const { pendingGifts, setPendingGifts, loadingGifts, refreshGifts } =
+    useActivityContext();
 
   const [dismissingId, setDismissingId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   // Remove from view immediately on dismiss
-  const [hiddenAutoBuyIds, setHiddenAutoBuyIds] = useState<Set<string>>(new Set());
+  const [hiddenAutoBuyIds, setHiddenAutoBuyIds] = useState<Set<string>>(
+    new Set(),
+  );
 
   // Gift acceptance modal
   const [acceptingGift, setAcceptingGift] = useState<Order | null>(null);
@@ -65,7 +84,6 @@ export default function ActivitySection() {
       setDismissingId(null);
     }
   }
-
 
   // Accept friend request
   async function handleAcceptRequest(fromUid: string) {
@@ -137,10 +155,36 @@ export default function ActivitySection() {
     pendingGifts.length > 0 ||
     autoBuyMessages.length > 0;
 
+  async function handleRefresh() {
+    setRefreshing(true);
+    try {
+      await Promise.all([refreshAppUser(), refreshGifts()]);
+      showSuccessToast("Activity refreshed!");
+    } catch (err) {
+      console.error("Failed to refresh activity:", err);
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
   return (
     <>
       <div className="mb-8">
-        <h3 className="text-xl md:text-2xl font-bold mb-4">Activity</h3>
+        <div className="flex items-center gap-3 mb-4">
+          <h3 className="text-xl md:text-2xl font-bold">Activity</h3>
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-50"
+            aria-label="Refresh activity"
+            title="Refresh activity"
+          >
+            <FiRefreshCw
+              className={cn("w-3.5 h-3.5", refreshing && "animate-spin")}
+            />
+          </button>
+        </div>
 
         {loadingGifts ? (
           <div className="rounded-[20px] border border-black/10 p-5 md:p-8">
@@ -348,7 +392,7 @@ export default function ActivitySection() {
                         : "border-black/10 hover:border-black/30",
                     )}
                   >
-                    <input 
+                    <input
                       type="radio"
                       name="acceptAddress"
                       value={addr.id}
